@@ -6,6 +6,7 @@ const PORT = 3000;
 
 const requestCounter = require("./middleware/requestCounter");
 const customMiddleware = require("./middleware/customMiddleware");
+const { sum, multiply } = require("./utils");
 
 function middleware(req, res, next) {
   //   console.log("From inside middleware", req.headers);
@@ -28,12 +29,25 @@ app.post("/customMiddleware", customMiddleware, (req, res) => {
 });
 
 app.post("/counterSum", (req, res) => {
-  const { counter: n } = req.headers;
+  const { counter: n } = req.body;
   //   console.log(req.headers);
-  const sum = (Number(n) * (Number(n) + 1)) / 2;
+  const sumOfN = sum(n);
+  const mul = multiply(n);
   //   console.log(req.route, "route");
 
-  res.send(`sum is ${sum}`);
+  if (n > 10000) {
+    res.status(404).send("Number is too big");
+  }
+
+  const ans = {
+    sum: sumOfN,
+    mul,
+  };
+
+  // res.send vs res.json
+  // with res.json you can't send text. it enforces to send json
+
+  res.send(ans);
 });
 
 // use dynamic routes
