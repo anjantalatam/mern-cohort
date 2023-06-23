@@ -1,4 +1,5 @@
 const express = require("express");
+const fs = require("fs");
 
 const app = express();
 
@@ -26,6 +27,25 @@ app.use(express.json());
 
 app.post("/customMiddleware", customMiddleware, (req, res) => {
   res.json({ status: "ok" });
+});
+
+app.get("/", (req, res) => {
+  // send html in response
+  // res.send(`<!DOCTYPE html>
+  //   <html lang="en">
+  //     <head>
+  //       <meta charset="UTF-8" />
+  //       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  //       <title>Document</title>
+  //     </head>
+  //     <body>
+  //       hello world
+  //     </body>
+  //   </html>
+  //   `);
+
+  // send html file in response
+  res.sendFile(__dirname + "/index.html");
 });
 
 app.post("/counterSum", (req, res) => {
