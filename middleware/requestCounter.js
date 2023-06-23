@@ -1,9 +1,7 @@
 let count = 0;
 
-function requestCounter(req, res, next) {
+export default function requestCounter(req, res, next) {
   count++;
   console.log(count, "count");
   next();
 }
-
-module.exports = requestCounter;

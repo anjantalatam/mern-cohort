@@ -1,13 +1,14 @@
-const express = require("express");
-const fs = require("fs");
+import express, { json } from "express";
+import fs from "fs";
+// .js is required
+import requestCounter from "./middleware/requestCounter.js";
 
 const app = express();
 
 const PORT = 3000;
 
-const requestCounter = require("./middleware/requestCounter");
-const customMiddleware = require("./middleware/customMiddleware");
-const { sum, multiply } = require("./utils");
+import customMiddleware from "./middleware/customMiddleware.js";
+import { sum, multiply } from "./utils.js";
 
 function middleware(req, res, next) {
   //   console.log("From inside middleware", req.headers);
@@ -23,7 +24,7 @@ app.use(middleware);
 
 // parse JSON
 
-app.use(express.json());
+app.use(json());
 
 app.post("/customMiddleware", customMiddleware, (req, res) => {
   res.json({ status: "ok" });
@@ -68,6 +69,10 @@ app.post("/counterSum", (req, res) => {
   // with res.json you can't send text. it enforces to send json
 
   res.send(ans);
+});
+
+app.get("/newTest", (req, res) => {
+  res.send({ value: 10 });
 });
 
 // use dynamic routes

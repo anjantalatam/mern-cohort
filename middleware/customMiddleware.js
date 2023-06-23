@@ -9,4 +9,4 @@ function customMiddleware(req, res, next) {
   next();
 }
 
-module.exports = customMiddleware;
+export default customMiddleware;
