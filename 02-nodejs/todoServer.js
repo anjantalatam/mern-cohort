@@ -164,6 +164,11 @@ app.delete("/todos/:id", (req, res) => {
   res.status(200).send({ message: "Todo Deleted" });
 });
 
+// handle un-configured routes
+app.use((req, res) => {
+  res.status(404).send("Route not found");
+});
+
 app.listen(PORT, () => {
   console.log(`Listening on Port ${PORT}, http://localhost:${PORT}`);
 });
