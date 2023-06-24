@@ -95,7 +95,7 @@ app.post("/todos", (req, res) => {
 
   todos.push(dbTodo);
 
-  res.status(200).send({ id: todoId });
+  res.status(201).send({ id: todoId });
 });
 
 // 4. PUT /todos/:id
@@ -141,6 +141,27 @@ app.put("/todos/:id", (req, res) => {
   todos = updatedTodos;
 
   res.status(200).send(updatedTodo);
+});
+
+// 5. DELETE /todos/:id
+
+app.delete("/todos/:id", (req, res) => {
+  const { params } = req;
+
+  if (params?.id == undefined) {
+    return res.status(400).send({ error: "Expected ID" });
+  }
+
+  const todo = todos.find((t) => t.id == params.id);
+
+  if (!todo) {
+    return res.status(404).send({ error: "Todo not found" });
+  }
+
+  const updatedTodos = todos.filter((t) => t.id != params.id);
+
+  todos = updatedTodos;
+  res.status(200).send({ message: "Todo Deleted" });
 });
 
 app.listen(PORT, () => {
