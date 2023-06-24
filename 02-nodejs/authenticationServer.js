@@ -108,8 +108,8 @@ app.get("/data", (req, res) => {
 });
 
 // Dev Mode
-app.listen(PORT, () => {
-  console.log(`Listening on Port ${PORT}, http://localhost:${PORT}`);
-});
+// app.listen(PORT, () => {
+//   console.log(`Listening on Port ${PORT}, http://localhost:${PORT}`);
+// });
 
 module.exports = app;

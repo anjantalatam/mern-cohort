@@ -118,27 +118,20 @@ app.put("/todos/:id", (req, res) => {
       .send({ error: "Expected either one of title, description, completed" });
   }
 
-  const todo = todos.find((t) => t.id == params.id);
+  const todoIndex = todos.findIndex((t) => t.id == params.id);
 
-  if (!todo) {
+  if (todoIndex < 0) {
     return res.status(404).send({ error: "Todo not found" });
   }
 
   const updatedTodo = {
-    ...todo,
-    title: title ?? todo.title,
-    description: description ?? todo.description,
-    completed: completed ?? todo.completed,
+    ...todos[todoIndex],
+    title: title ?? todos[todoIndex].title,
+    description: description ?? todos[todoIndex].description,
+    completed: completed ?? todos[todoIndex].completed,
   };
 
-  const updatedTodos = todos.map((t) => {
-    if (t.id == params.id) {
-      return updatedTodo;
-    }
-    return t;
-  });
-
-  todos = updatedTodos;
+  todos[todoIndex] = updatedTodo;
 
   res.status(200).send(updatedTodo);
 });
