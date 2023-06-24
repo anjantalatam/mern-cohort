@@ -41,6 +41,8 @@
  */
 const express = require("express");
 const bodyParser = require("body-parser");
+const fs = require("fs");
+const path = require("path");
 
 const app = express();
 
@@ -49,6 +51,56 @@ const PORT = 3000;
 app.use(bodyParser.json());
 
 let todos = [];
+
+// #HARD-TODO: load todos from a file
+fs.readFile(path.join(__dirname, "store.json"), "utf-8", (err, data) => {
+  function initiateEmptyStore() {
+    fs.writeFile("./store.json", JSON.stringify([]), (err) => {
+      if (err) {
+        console.log("Error in writing to file");
+      } else {
+        console.log("Store Created");
+      }
+    });
+  }
+
+  if (err) {
+    console.log("inside err here");
+
+    // if there is no file ./store.json create and initiate with []
+    initiateEmptyStore();
+    return;
+  }
+
+  try {
+    const todosFromStore = JSON.parse(data);
+
+    if (!Array.isArray(todosFromStore)) {
+      todos = [];
+
+      // if parsed data is not array re-initialize store with an array
+      initiateEmptyStore();
+    } else {
+      todos = todosFromStore;
+    }
+  } catch (e) {
+    console.log("JSON parse failed");
+    todos = [];
+
+    // if parse fails ( due to invalid JSON ) re-create store and initiate with []
+    initiateEmptyStore();
+  }
+});
+
+function updateStore() {
+  fs.writeFile("./store.json", JSON.stringify(todos), (err) => {
+    if (err) {
+      console.log("Store update failed");
+      return;
+    }
+    console.log("Store updated");
+  });
+}
 
 // 1.GET /todos
 app.get("/todos", (req, res) => {
@@ -95,6 +147,8 @@ app.post("/todos", (req, res) => {
 
   todos.push(dbTodo);
 
+  updateStore();
+
   res.status(201).send({ id: todoId });
 });
 
@@ -133,6 +187,8 @@ app.put("/todos/:id", (req, res) => {
 
   todos[todoIndex] = updatedTodo;
 
+  updateStore();
+
   res.status(200).send(updatedTodo);
 });
 
@@ -154,6 +210,8 @@ app.delete("/todos/:id", (req, res) => {
   const updatedTodos = todos.filter((t) => t.id != params.id);
 
   todos = updatedTodos;
+
+  updateStore();
   res.status(200).send({ message: "Todo Deleted" });
 });
 
