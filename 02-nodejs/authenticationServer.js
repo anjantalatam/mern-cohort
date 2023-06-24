@@ -43,25 +43,25 @@ const users = [];
 // 1. POST /signup - User Signup
 
 app.post("/signup", (req, res) => {
-  const { username, password, firstName, lastName } = req.body;
+  const { email, password, firstName, lastName } = req.body;
 
   // commenting this as test is not handled for this
-  // if (!username || !password || !firstName || !lastName) {
+  // if (!email || !password || !firstName || !lastName) {
   //   return res.status(400).send("All fields are required");
   // }
 
-  const find = users.find((user) => user.username === username);
+  const find = users.find((user) => user.email === email);
 
   if (find) {
-    return res.status(400).send("User already exists ( username taken )");
+    return res.status(400).send("User already exists");
   }
 
   users.push({
     id: uuid(),
-    username,
     password,
     firstName,
     lastName,
+    email,
   });
 
   res.status(201).send("Signup successful");
