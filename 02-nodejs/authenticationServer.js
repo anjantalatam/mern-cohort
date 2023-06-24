@@ -84,6 +84,29 @@ app.post("/login", (req, res) => {
   });
 });
 
+// 3. GET /data
+app.get("/data", (req, res) => {
+  const { email, password } = req.headers;
+
+  if (!email || !password) {
+    return res.status(401).send("Unauthorized");
+  }
+
+  const user = users.find((u) => u.email === email);
+
+  if (!user || user.password !== password) {
+    res.status(401).send("Invalid credentials");
+  }
+
+  const response = users.map((u) => ({
+    firstName: u.firstName,
+    lastName: u.lastName,
+    email: u.email,
+  }));
+
+  res.send({ users: response });
+});
+
 // Dev Mode
 app.listen(PORT, () => {
   console.log(`Listening on Port ${PORT}, http://localhost:${PORT}`);
