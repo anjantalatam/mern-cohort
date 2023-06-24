@@ -48,7 +48,7 @@ const PORT = 3000;
 
 app.use(bodyParser.json());
 
-const todos = [];
+let todos = [];
 
 // 1.GET /todos
 app.get("/todos", (req, res) => {
@@ -96,6 +96,51 @@ app.post("/todos", (req, res) => {
   todos.push(dbTodo);
 
   res.status(200).send({ id: todoId });
+});
+
+// 4. PUT /todos/:id
+app.put("/todos/:id", (req, res) => {
+  const { params, body } = req;
+
+  if (params?.id == undefined) {
+    return res.status(400).send({ error: "Expected ID" });
+  }
+
+  const { title, description, completed } = body;
+
+  if (
+    title == undefined &&
+    description == undefined &&
+    completed == undefined
+  ) {
+    return res
+      .status(400)
+      .send({ error: "Expected either one of title, description, completed" });
+  }
+
+  const todo = todos.find((t) => t.id == params.id);
+
+  if (!todo) {
+    return res.status(404).send({ error: "Todo not found" });
+  }
+
+  const updatedTodo = {
+    ...todo,
+    title: title ?? todo.title,
+    description: description ?? todo.description,
+    completed: completed ?? todo.completed,
+  };
+
+  const updatedTodos = todos.map((t) => {
+    if (t.id == params.id) {
+      return updatedTodo;
+    }
+    return t;
+  });
+
+  todos = updatedTodos;
+
+  res.status(200).send(updatedTodo);
 });
 
 app.listen(PORT, () => {
