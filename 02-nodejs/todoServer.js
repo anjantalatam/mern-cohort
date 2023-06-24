@@ -54,7 +54,30 @@ app.get("/todos", (req, res) => {
   res.status(200).send({ todos: todos });
 });
 
-module.exports = app;
+app.post("/todos", (req, res) => {
+  const body = req.body;
+
+  const { title, description, completed = false } = body;
+
+  if (!title || !description) {
+    return res
+      .status(400)
+      .send({ error: "Title and description are required" });
+  }
+
+  const todoId = todos.length + 1;
+
+  const dbTodo = {
+    id: todoId,
+    title,
+    description,
+    completed,
+  };
+
+  todos.push(dbTodo);
+
+  res.status(200).send({ id: todoId });
+});
 
 app.listen(PORT, () => {
   console.log(`Listening on Port ${PORT}, http://localhost:${PORT}`);
