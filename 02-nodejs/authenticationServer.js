@@ -107,6 +107,11 @@ app.get("/data", (req, res) => {
   res.send({ users: response });
 });
 
+// handle un-configured routes
+app.use((req, res) => {
+  res.status(404).send("Route not found");
+});
+
 // Dev Mode
 // app.listen(PORT, () => {
 //   console.log(`Listening on Port ${PORT}, http://localhost:${PORT}`);
