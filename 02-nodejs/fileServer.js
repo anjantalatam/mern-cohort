@@ -34,6 +34,25 @@ app.get("/files", (req, res) => {
   });
 });
 
+// 2. GET /file/:filename
+
+app.get("/files/:filename", (req, res) => {
+  const { params } = req;
+
+  fs.readFile(`${__dirname}/files/${params.filename}`, "utf-8", (err, data) => {
+    if (err) {
+      return res.status(404).send("File not found");
+    }
+
+    res.send(data);
+  });
+});
+
+// handle un-configured routes
+app.use((req, res) => {
+  res.status(404).send({ error: "Not Found" });
+});
+
 // Dev Mode
 app.listen(PORT, () => {
   console.log(`Listening on Port ${PORT}, http://localhost:${PORT}`);
