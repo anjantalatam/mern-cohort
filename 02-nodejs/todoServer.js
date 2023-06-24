@@ -52,7 +52,7 @@ let todos = [];
 
 // 1.GET /todos
 app.get("/todos", (req, res) => {
-  res.status(200).send({ todos: todos });
+  res.status(200).send(todos);
 });
 
 // 2.GET /todos/:id
@@ -169,8 +169,9 @@ app.use((req, res) => {
   res.status(404).send("Route not found");
 });
 
-app.listen(PORT, () => {
-  console.log(`Listening on Port ${PORT}, http://localhost:${PORT}`);
-});
+// Dev Mode
+// app.listen(PORT, () => {
+//   console.log(`Listening on Port ${PORT}, http://localhost:${PORT}`);
+// });
 
-// module.exports = app;
+module.exports = app;
