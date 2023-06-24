@@ -50,10 +50,29 @@ app.use(bodyParser.json());
 
 const todos = [];
 
+// 1.GET /todos
 app.get("/todos", (req, res) => {
   res.status(200).send({ todos: todos });
 });
 
+// 2.GET /todos/:id
+app.get("/todos/:id", (req, res) => {
+  const { params } = req;
+
+  if (params?.id == undefined) {
+    return res.status(400).send({ error: "Expected ID" });
+  }
+
+  const todo = todos.find((t) => t.id == params.id);
+
+  if (!todo) {
+    return res.status(404).send({ error: "Todo not found" });
+  }
+
+  res.status(200).send(todo);
+});
+
+// 3. POST /todos
 app.post("/todos", (req, res) => {
   const body = req.body;
 
