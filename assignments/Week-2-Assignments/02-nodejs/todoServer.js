@@ -43,11 +43,13 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const fs = require("fs");
 const path = require("path");
+const cors = require("cors");
 
 const app = express();
 
 const PORT = 3000;
 
+app.use(cors());
 app.use(bodyParser.json());
 
 let todos = [];
@@ -149,7 +151,7 @@ app.post("/todos", (req, res) => {
 
   updateStore();
 
-  res.status(201).send({ id: todoId });
+  res.status(201).send(dbTodo);
 });
 
 // 4. PUT /todos/:id
@@ -221,8 +223,8 @@ app.use((req, res) => {
 });
 
 // Dev Mode
-// app.listen(PORT, () => {
-//   console.log(`Listening on Port ${PORT}, http://localhost:${PORT}`);
-// });
+app.listen(PORT, () => {
+  console.log(`Listening on Port ${PORT}, http://localhost:${PORT}`);
+});
 
 module.exports = app;
