@@ -136,8 +136,6 @@ app.post('/admin/signup', (req, res) => {
 
   const admin = ADMINS.find((a) => a.email === email);
 
-  console.log(ADMINS, admin);
-
   if (admin) {
     return res.status(409).send({ message: 'User exists' });
   }
@@ -218,8 +216,49 @@ app.post('/admin/courses', authenticate, (req, res) => {
   res.send({ message: 'Course created successfully', courseId });
 });
 
-app.put('/admin/courses/:courseId', (req, res) => {
-  // logic to edit a course
+app.put('/admin/courses/:courseId', authenticate, (req, res) => {
+  const { courseId } = req.params;
+
+  const course = COURSES.find((c) => c.id === courseId);
+
+  if (!course) {
+    return res.status(401).send({ message: 'Course not found' });
+  }
+
+  const body = req.body;
+
+  const properties = [
+    'title',
+    'description',
+    'price',
+    'imageLink',
+    'published',
+  ];
+
+  if (properties.every((prop) => body[prop] === undefined)) {
+    return res.status(400).send({ message: 'Atleast one field required' });
+  }
+
+  const newCourse = { ...course };
+
+  properties.forEach((prop) => {
+    if (body[prop] !== undefined) {
+      newCourse[prop] = body[prop];
+    }
+  });
+
+  const updatedCourses = COURSES.map((c) => {
+    if (c.id === courseId) {
+      return newCourse;
+    }
+    return c;
+  });
+
+  COURSES = updatedCourses;
+
+  updateCoursesStore();
+
+  res.send({ message: 'Course updated successfully' });
 });
 
 app.get('/admin/courses', (req, res) => {
