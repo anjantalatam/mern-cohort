@@ -9,41 +9,98 @@ const PORT = 3000;
 app.use(bodyParser.json());
 
 let ADMINS = [];
-let USERS = [];
 let COURSES = [];
+let USERS = [];
 
-fs.readFile(path.join(__dirname, '/store/admin.json'), 'utf-8', (err, data) => {
-  function initiateAdminStore() {
-    fs.writeFile(
-      path.join(__dirname, '/store/admin.json'),
-      JSON.stringify([]),
-      (err) => {
-        if (err) {
-          console.log('Error in writing to file');
-        } else {
-          console.log('Store Created');
+// middleware
+
+function authenticate(req, res, next) {
+  const { email, password } = req.headers;
+
+  if (!email || !password) {
+    return res.status(400).send({ message: 'Email and Password are required' });
+  }
+
+  const adminFromDb = ADMINS.find((a) => a.email === email);
+
+  if (adminFromDb.password !== password) {
+    return res.status(401).send({ message: 'Invalid Credentials' });
+  }
+
+  next();
+}
+
+// store
+fs.readFile(
+  path.join(__dirname, '/store/admins.json'),
+  'utf-8',
+  (err, data) => {
+    function initiateAdminStore() {
+      fs.writeFile(
+        path.join(__dirname, '/store/admins.json'),
+        JSON.stringify([]),
+        (err) => {
+          if (err) {
+            console.log('Error in writing to file');
+          } else {
+            console.log('Store Created');
+          }
         }
-      }
-    );
-  }
+      );
+    }
 
-  if (err) {
-    initiateAdminStore();
-    return;
-  }
+    if (err) {
+      initiateAdminStore();
+      return;
+    }
 
-  try {
-    const adminsFromFile = JSON.parse(data);
-    ADMINS = adminsFromFile;
-  } catch (e) {
-    initiateAdminStore();
-    ADMINS = [];
+    try {
+      const adminsFromFile = JSON.parse(data);
+      ADMINS = adminsFromFile;
+    } catch (e) {
+      initiateAdminStore();
+      ADMINS = [];
+    }
   }
-});
+);
+
+// courses store setup
+fs.readFile(
+  path.join(__dirname, '/store/courses.json'),
+  'utf-8',
+  (err, data) => {
+    function initiateCoursesStore() {
+      fs.writeFile(
+        path.join(__dirname, '/store/courses.json'),
+        JSON.stringify([]),
+        (err) => {
+          if (err) {
+            console.log('Error in writing to file');
+          } else {
+            console.log('Store Created');
+          }
+        }
+      );
+    }
+
+    if (err) {
+      initiateCoursesStore();
+      return;
+    }
+
+    try {
+      const coursesFromFile = JSON.parse(data);
+      COURSES = coursesFromFile;
+    } catch (e) {
+      initiateCoursesStore();
+      COURSES = [];
+    }
+  }
+);
 
 function updateAdminStore() {
   fs.writeFile(
-    path.join(__dirname, '/store/admin.json'),
+    path.join(__dirname, '/store/admins.json'),
     JSON.stringify(ADMINS),
     (err) => {
       if (err) {
@@ -51,6 +108,20 @@ function updateAdminStore() {
         return;
       }
       console.log('ADMIN Store updated');
+    }
+  );
+}
+
+function updateCoursesStore() {
+  fs.writeFile(
+    path.join(__dirname, '/store/courses.json'),
+    JSON.stringify(COURSES),
+    (err) => {
+      if (err) {
+        console.log('COURSES store update failed');
+        return;
+      }
+      console.log('COURSES Store updated');
     }
   );
 }
@@ -97,12 +168,54 @@ app.post('/admin/login', (req, res) => {
   res.send({ message: 'Logged in successfully' });
 });
 
+// only for DEV
 app.get('/admins', (req, res) => {
+  const { 'dev-mode': devMode } = req.headers;
+
+  if (!devMode) {
+    return res.send(401);
+  }
+
   res.send(ADMINS);
 });
 
-app.post('/admin/courses', (req, res) => {
-  // logic to create a course
+app.post('/admin/courses', authenticate, (req, res) => {
+  const { title, description, price, imageLink, published } = req.body;
+  const { email } = req.headers;
+
+  if (!title || !description || !price || !imageLink || !published) {
+    res.status(401).send({ message: 'All properties are required' });
+  }
+
+  const adminUser = ADMINS.find((a) => a.email === email);
+
+  console.log(adminUser);
+
+  const courseId = uuid();
+
+  const newCourse = {
+    title,
+    description,
+    price,
+    imageLink,
+    published,
+    id: courseId,
+    instructorId: adminUser.id,
+  };
+
+  COURSES.push(newCourse);
+
+  if (!adminUser.courses) {
+    adminUser.courses = [courseId];
+  } else {
+    adminUser.courses.push(courseId);
+  }
+
+  // update stores
+  updateAdminStore();
+  updateCoursesStore();
+
+  res.send({ message: 'Course created successfully', courseId });
 });
 
 app.put('/admin/courses/:courseId', (req, res) => {
