@@ -261,8 +261,18 @@ app.put('/admin/courses/:courseId', authenticate, (req, res) => {
   res.send({ message: 'Course updated successfully' });
 });
 
-app.get('/admin/courses', (req, res) => {
-  // logic to get all courses
+app.get('/admin/courses', authenticate, (req, res) => {
+  const { email } = req.headers;
+
+  const admin = ADMINS.find((u) => u.email === email);
+
+  if (!admin) {
+    return res.send({ message: 'USER not found (no chance for this error)' });
+  }
+
+  const coursesByAdmin = COURSES.filter((c) => c.instructorId === admin.id);
+
+  return res.send({ courses: coursesByAdmin });
 });
 
 // User routes
