@@ -1,19 +1,104 @@
 const express = require('express');
+const path = require('path');
+const bodyParser = require('body-parser');
 const app = express();
+const { v4: uuid } = require('uuid');
+const fs = require('fs');
+const PORT = 3000;
 
-app.use(express.json());
+app.use(bodyParser.json());
 
 let ADMINS = [];
 let USERS = [];
 let COURSES = [];
 
+fs.readFile(path.join(__dirname, '/store/admin.json'), 'utf-8', (err, data) => {
+  function initiateAdminStore() {
+    fs.writeFile(
+      path.join(__dirname, '/store/admin.json'),
+      JSON.stringify([]),
+      (err) => {
+        if (err) {
+          console.log('Error in writing to file');
+        } else {
+          console.log('Store Created');
+        }
+      }
+    );
+  }
+
+  if (err) {
+    initiateAdminStore();
+    return;
+  }
+
+  try {
+    const adminsFromFile = JSON.parse(data);
+    ADMINS = adminsFromFile;
+  } catch (e) {
+    initiateAdminStore();
+    ADMINS = [];
+  }
+});
+
+function updateAdminStore() {
+  fs.writeFile(
+    path.join(__dirname, '/store/admin.json'),
+    JSON.stringify(ADMINS),
+    (err) => {
+      if (err) {
+        console.log('ADMIN store update failed');
+        return;
+      }
+      console.log('ADMIN Store updated');
+    }
+  );
+}
+
 // Admin routes
 app.post('/admin/signup', (req, res) => {
-  // logic to sign up admin
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).send({ message: 'Email and Password are required' });
+  }
+
+  const admin = ADMINS.find((a) => a.email === email);
+
+  console.log(ADMINS, admin);
+
+  if (admin) {
+    return res.status(409).send({ message: 'User exists' });
+  }
+
+  ADMINS.push({
+    id: uuid(),
+    email,
+    password,
+  });
+
+  updateAdminStore();
+
+  res.status(200).send({ message: 'User created successfully' });
 });
 
 app.post('/admin/login', (req, res) => {
-  // logic to log in admin
+  const { email, password } = req.headers;
+
+  if (!email || !password) {
+    return res.status(400).send({ message: 'Email and Password are required' });
+  }
+
+  const adminFromDb = ADMINS.find((a) => a.email === email);
+  if (adminFromDb.password !== password) {
+    return res.status(401).send({ message: 'Invalid Credentials' });
+  }
+
+  res.send({ message: 'Logged in successfully' });
+});
+
+app.get('/admins', (req, res) => {
+  res.send(ADMINS);
 });
 
 app.post('/admin/courses', (req, res) => {
@@ -49,6 +134,6 @@ app.get('/users/purchasedCourses', (req, res) => {
   // logic to view purchased courses
 });
 
-app.listen(3000, () => {
+app.listen(PORT, () => {
   console.log('Server is listening on port 3000');
 });
