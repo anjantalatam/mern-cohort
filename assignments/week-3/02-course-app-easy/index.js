@@ -431,3 +431,7 @@ app.get('/users', (req, res) => {
 
   res.send(USERS);
 });
+
+app.use('*', (req, res) => {
+  res.status(404).send({ message: 'Route not found' });
+});
