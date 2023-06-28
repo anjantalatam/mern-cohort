@@ -210,17 +210,6 @@ app.post('/admin/login', (req, res) => {
   res.send({ message: 'Logged in successfully' });
 });
 
-// only for DEV
-app.get('/admins', (req, res) => {
-  const { 'dev-mode': devMode } = req.headers;
-
-  if (!devMode) {
-    return res.send(401);
-  }
-
-  res.send(ADMINS);
-});
-
 app.post('/admin/courses', authenticate, (req, res) => {
   const { title, description, price, imageLink, published } = req.body;
   const { email } = req.headers;
@@ -319,9 +308,40 @@ app.get('/admin/courses', authenticate, (req, res) => {
   return res.send({ courses: coursesByAdmin });
 });
 
-// User routes
+// <-------------------- Admin DEV Route -------------------->
+app.get('/admins', (req, res) => {
+  const { 'dev-mode': devMode } = req.headers;
+
+  if (!devMode) {
+    return res.send(401);
+  }
+
+  res.send(ADMINS);
+});
+
+// <-------------------- User routes -------------------->
 app.post('/users/signup', (req, res) => {
-  // logic to sign up user
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).send({ message: 'Email and Password are required' });
+  }
+
+  const user = USERS.find((a) => a.email === email);
+
+  if (user) {
+    return res.status(409).send({ message: 'User exists' });
+  }
+
+  USERS.push({
+    id: uuid(),
+    email,
+    password,
+  });
+
+  updateUsersStore();
+
+  res.status(200).send({ message: 'User created successfully' });
 });
 
 app.post('/users/login', (req, res) => {
@@ -342,4 +362,15 @@ app.get('/users/purchasedCourses', (req, res) => {
 
 app.listen(PORT, () => {
   console.log('Server is listening on port 3000');
+});
+
+// <-------------------- USER DEV Route -------------------->
+app.get('/users', (req, res) => {
+  const { 'dev-mode': devMode } = req.headers;
+
+  if (!devMode) {
+    return res.send(401);
+  }
+
+  res.send(USERS);
 });
