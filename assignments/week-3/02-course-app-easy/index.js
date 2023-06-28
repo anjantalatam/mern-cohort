@@ -381,8 +381,36 @@ app.get('/users/courses', (req, res) => {
   // logic to list all courses
 });
 
-app.post('/users/courses/:courseId', (req, res) => {
-  // logic to purchase a course
+app.post('/users/courses/:courseId', authenticateUser, (req, res) => {
+  const { courseId } = req.params;
+
+  const course = COURSES.find((c) => c.id === courseId);
+
+  if (!course) {
+    return res.status(401).send({ message: 'Course not found' });
+  }
+
+  const { email } = req.headers;
+
+  const currentUser = USERS.find((u) => u.email === email);
+
+  if (
+    currentUser?.purchasedCourses &&
+    currentUser.purchasedCourses.includes(courseId)
+  ) {
+    // conflict status code
+    return res.status(409).send({ message: 'Course purchased already' });
+  }
+
+  if (!currentUser?.purchasedCourses) {
+    currentUser.purchasedCourses = [courseId];
+  } else {
+    currentUser.purchasedCourses.push(courseId);
+  }
+
+  updateUsersStore();
+
+  res.send({ message: 'Course purchased successfully' });
 });
 
 app.get('/users/purchasedCourses', (req, res) => {
