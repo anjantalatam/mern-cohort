@@ -377,8 +377,9 @@ app.post('/users/login', (req, res) => {
   res.send({ message: 'Logged in successfully' });
 });
 
-app.get('/users/courses', (req, res) => {
-  // logic to list all courses
+app.get('/users/courses', authenticateUser, (req, res) => {
+  const publishedCourses = COURSES.filter((c) => c.published);
+  res.send({ courses: publishedCourses });
 });
 
 app.post('/users/courses/:courseId', authenticateUser, (req, res) => {
@@ -413,7 +414,7 @@ app.post('/users/courses/:courseId', authenticateUser, (req, res) => {
   res.send({ message: 'Course purchased successfully' });
 });
 
-app.get('/users/purchasedCourses', (req, res) => {
+app.get('/users/purchasedCourses', authenticateUser, (req, res) => {
   const { email } = req.headers;
 
   const currentUser = USERS.find((u) => u.email === email);
