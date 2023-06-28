@@ -232,13 +232,19 @@ app.post('/admin/courses', authenticateAdmin, (req, res) => {
   const { title, description, price, imageLink, published } = req.body;
   const { email } = req.headers;
 
-  if (!title || !description || !price || !imageLink || !published) {
-    res.status(401).send({ message: 'All properties are required' });
+  const properties = [
+    'title',
+    'description',
+    'price',
+    'imageLink',
+    'published',
+  ];
+
+  if (properties.some((prop) => req.body[prop] === undefined)) {
+    return res.status(401).send({ message: 'All properties are required' });
   }
 
   const adminUser = ADMINS.find((a) => a.email === email);
-
-  console.log(adminUser);
 
   const courseId = uuid();
 
