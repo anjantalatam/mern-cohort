@@ -414,11 +414,17 @@ app.post('/users/courses/:courseId', authenticateUser, (req, res) => {
 });
 
 app.get('/users/purchasedCourses', (req, res) => {
-  // logic to view purchased courses
-});
+  const { email } = req.headers;
 
-app.listen(PORT, () => {
-  console.log('Server is listening on port 3000');
+  const currentUser = USERS.find((u) => u.email === email);
+
+  const purchasedCourses = currentUser?.purchasedCourses || [];
+
+  console.log(purchasedCourses, 'pcs');
+
+  const courseDetails = COURSES.filter((c) => purchasedCourses.includes(c.id));
+
+  res.send({ courses: courseDetails });
 });
 
 // <-------------------- USER DEV Route -------------------->
@@ -434,4 +440,8 @@ app.get('/users', (req, res) => {
 
 app.use('*', (req, res) => {
   res.status(404).send({ message: 'Route not found' });
+});
+
+app.listen(PORT, () => {
+  console.log('Server is listening on port 3000');
 });
