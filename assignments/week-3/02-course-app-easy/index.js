@@ -30,7 +30,7 @@ function authenticate(req, res, next) {
   next();
 }
 
-// store
+// admins store
 fs.readFile(
   path.join(__dirname, '/store/admins.json'),
   'utf-8',
@@ -98,6 +98,36 @@ fs.readFile(
   }
 );
 
+// users store
+fs.readFile(path.join(__dirname, '/store/users.json'), 'utf-8', (err, data) => {
+  function initiateUsersStore() {
+    fs.writeFile(
+      path.join(__dirname, '/store/users.json'),
+      JSON.stringify([]),
+      (err) => {
+        if (err) {
+          console.log('Error in writing to file');
+        } else {
+          console.log('Store Created');
+        }
+      }
+    );
+  }
+
+  if (err) {
+    initiateUsersStore();
+    return;
+  }
+
+  try {
+    const usersFromFile = JSON.parse(data);
+    USERS = usersFromFile;
+  } catch (e) {
+    initiateUsersStore();
+    USERS = [];
+  }
+});
+
 function updateAdminStore() {
   fs.writeFile(
     path.join(__dirname, '/store/admins.json'),
@@ -122,6 +152,20 @@ function updateCoursesStore() {
         return;
       }
       console.log('COURSES Store updated');
+    }
+  );
+}
+
+function updateUsersStore() {
+  fs.writeFile(
+    path.join(__dirname, '/store/users.json'),
+    JSON.stringify(USERS),
+    (err) => {
+      if (err) {
+        console.log('USERS store update failed');
+        return;
+      }
+      console.log('USERS Store updated');
     }
   );
 }
