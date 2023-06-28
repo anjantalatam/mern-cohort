@@ -12,9 +12,9 @@ let ADMINS = [];
 let COURSES = [];
 let USERS = [];
 
-// middleware
+// ADMIN middleware
 
-function authenticate(req, res, next) {
+function authenticateAdmin(req, res, next) {
   const { email, password } = req.headers;
 
   if (!email || !password) {
@@ -24,6 +24,24 @@ function authenticate(req, res, next) {
   const adminFromDb = ADMINS.find((a) => a.email === email);
 
   if (adminFromDb.password !== password) {
+    return res.status(401).send({ message: 'Invalid Credentials' });
+  }
+
+  next();
+}
+
+// USER middleware
+
+function authenticateUser(req, res, next) {
+  const { email, password } = req.headers;
+
+  if (!email || !password) {
+    return res.status(400).send({ message: 'Email and Password are required' });
+  }
+
+  const userFromDb = USERS.find((a) => a.email === email);
+
+  if (userFromDb.password !== password) {
     return res.status(401).send({ message: 'Invalid Credentials' });
   }
 
@@ -210,7 +228,7 @@ app.post('/admin/login', (req, res) => {
   res.send({ message: 'Logged in successfully' });
 });
 
-app.post('/admin/courses', authenticate, (req, res) => {
+app.post('/admin/courses', authenticateAdmin, (req, res) => {
   const { title, description, price, imageLink, published } = req.body;
   const { email } = req.headers;
 
@@ -249,7 +267,7 @@ app.post('/admin/courses', authenticate, (req, res) => {
   res.send({ message: 'Course created successfully', courseId });
 });
 
-app.put('/admin/courses/:courseId', authenticate, (req, res) => {
+app.put('/admin/courses/:courseId', authenticateAdmin, (req, res) => {
   const { courseId } = req.params;
 
   const course = COURSES.find((c) => c.id === courseId);
@@ -294,7 +312,7 @@ app.put('/admin/courses/:courseId', authenticate, (req, res) => {
   res.send({ message: 'Course updated successfully' });
 });
 
-app.get('/admin/courses', authenticate, (req, res) => {
+app.get('/admin/courses', authenticateAdmin, (req, res) => {
   const { email } = req.headers;
 
   const admin = ADMINS.find((u) => u.email === email);
