@@ -203,7 +203,7 @@ app.post('/admin/login', (req, res) => {
   }
 
   const adminFromDb = ADMINS.find((a) => a.email === email);
-  if (adminFromDb.password !== password) {
+  if (adminFromDb?.password !== password) {
     return res.status(401).send({ message: 'Invalid Credentials' });
   }
 
@@ -345,7 +345,18 @@ app.post('/users/signup', (req, res) => {
 });
 
 app.post('/users/login', (req, res) => {
-  // logic to log in user
+  const { email, password } = req.headers;
+
+  if (!email || !password) {
+    return res.status(400).send({ message: 'Email and Password are required' });
+  }
+
+  const userFromDb = USERS.find((u) => u.email === email);
+  if (userFromDb?.password !== password) {
+    return res.status(401).send({ message: 'Invalid Credentials' });
+  }
+
+  res.send({ message: 'Logged in successfully' });
 });
 
 app.get('/users/courses', (req, res) => {
