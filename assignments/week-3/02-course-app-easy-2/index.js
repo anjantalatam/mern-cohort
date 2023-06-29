@@ -22,6 +22,8 @@ const COURSE_PROPS = [
   'published',
 ];
 
+const COURSE_RES_PROPS = [...COURSE_PROPS, 'id'];
+
 // ADMIN middleware
 
 function authenticateAdmin(req, res, next) {
@@ -29,7 +31,7 @@ function authenticateAdmin(req, res, next) {
 
   try {
     const decryptedJwt = jwt.verify(authorization, jwtSecret);
-    req.email = decryptedJwt.email;
+    req.username = decryptedJwt.username;
     next();
   } catch (e) {
     return res.status(401).send({ message: 'Token expired' });
@@ -43,7 +45,7 @@ function authenticateUser(req, res, next) {
 
   try {
     const decryptedJwt = jwt.verify(authorization, jwtSecret);
-    req.email = decryptedJwt.email;
+    req.username = decryptedJwt.username;
     next();
   } catch (e) {
     return res.status(401).send({ message: 'Token expired' });
@@ -192,13 +194,15 @@ function updateUsersStore() {
 
 // Admin routes
 app.post('/admin/signup', (req, res) => {
-  const { email, password } = req.body;
+  const { username, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).send({ message: 'Email and Password are required' });
+  if (!username || !password) {
+    return res
+      .status(400)
+      .send({ message: 'Username and Password are required' });
   }
 
-  const admin = ADMINS.find((a) => a.email === email);
+  const admin = ADMINS.find((a) => a.username === username);
 
   if (admin) {
     return res.status(409).send({ message: 'User exists' });
@@ -206,12 +210,12 @@ app.post('/admin/signup', (req, res) => {
 
   ADMINS.push({
     id: uuid(),
-    email,
+    username,
     password,
   });
 
   // payload should be object when expiresIn is used
-  const token = jwt.sign({ email }, jwtSecret, {
+  const token = jwt.sign({ username }, jwtSecret, {
     expiresIn: '1h', // expires in 1hour
   });
 
@@ -221,20 +225,22 @@ app.post('/admin/signup', (req, res) => {
 });
 
 app.post('/admin/login', (req, res) => {
-  const { email, password } = req.headers;
+  const { username, password } = req.headers;
 
-  if (!email || !password) {
-    return res.status(400).send({ message: 'Email and Password are required' });
+  if (!username || !password) {
+    return res
+      .status(400)
+      .send({ message: 'Username and Password are required' });
   }
 
-  const adminFromDb = ADMINS.find((a) => a.email === email);
+  const adminFromDb = ADMINS.find((a) => a.username === username);
 
   if (adminFromDb?.password !== password) {
     return res.status(401).send({ message: 'Invalid Credentials' });
   }
 
   // payload should be object when expiresIn is used
-  const token = jwt.sign({ email }, jwtSecret, {
+  const token = jwt.sign({ username }, jwtSecret, {
     expiresIn: '1h', // expires in 1hour
   });
 
@@ -243,13 +249,13 @@ app.post('/admin/login', (req, res) => {
 
 app.post('/admin/courses', authenticateAdmin, (req, res) => {
   const { title, description, price, imageLink, published } = req.body;
-  const { email } = req;
+  const { username } = req;
 
   if (COURSE_PROPS.some((prop) => req.body[prop] === undefined)) {
     return res.status(401).send({ message: 'All properties are required' });
   }
 
-  const adminUser = ADMINS.find((a) => a.email === email);
+  const adminUser = ADMINS.find((a) => a.username === username);
 
   const courseId = uuid();
 
@@ -316,9 +322,9 @@ app.put('/admin/courses/:courseId', authenticateAdmin, (req, res) => {
 });
 
 app.get('/admin/courses', authenticateAdmin, (req, res) => {
-  const { email } = req;
+  const { username } = req;
 
-  const admin = ADMINS.find((u) => u.email === email);
+  const admin = ADMINS.find((u) => u.username === username);
 
   if (!admin) {
     return res
@@ -344,13 +350,15 @@ app.get('/admins', (req, res) => {
 
 // <-------------------- User routes -------------------->
 app.post('/users/signup', (req, res) => {
-  const { email, password } = req.body;
+  const { username, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).send({ message: 'Email and Password are required' });
+  if (!username || !password) {
+    return res
+      .status(400)
+      .send({ message: 'Username and Password are required' });
   }
 
-  const user = USERS.find((a) => a.email === email);
+  const user = USERS.find((a) => a.username === username);
 
   if (user) {
     return res.status(409).send({ message: 'User exists' });
@@ -358,12 +366,12 @@ app.post('/users/signup', (req, res) => {
 
   USERS.push({
     id: uuid(),
-    email,
+    username,
     password,
   });
 
   // generate token
-  const token = jwt.sign({ email }, jwtSecret, {
+  const token = jwt.sign({ username }, jwtSecret, {
     expiresIn: '1h',
   });
 
@@ -373,20 +381,22 @@ app.post('/users/signup', (req, res) => {
 });
 
 app.post('/users/login', (req, res) => {
-  const { email, password } = req.headers;
+  const { username, password } = req.headers;
 
-  if (!email || !password) {
-    return res.status(400).send({ message: 'Email and Password are required' });
+  if (!username || !password) {
+    return res
+      .status(400)
+      .send({ message: 'Username and Password are required' });
   }
 
-  const userFromDb = USERS.find((u) => u.email === email);
+  const userFromDb = USERS.find((u) => u.username === username);
 
   if (userFromDb?.password !== password) {
     return res.status(401).send({ message: 'Invalid Credentials' });
   }
 
   // generate token
-  const token = jwt.sign({ email }, jwtSecret, {
+  const token = jwt.sign({ username }, jwtSecret, {
     expiresIn: '1h',
   });
 
@@ -397,7 +407,7 @@ app.get('/users/courses', authenticateUser, (req, res) => {
   const publishedCourses = COURSES.filter((c) => c.published);
 
   const coursesResponse = publishedCourses.map((c) => {
-    return COURSE_PROPS.reduce((acc, prop) => {
+    return COURSE_RES_PROPS.reduce((acc, prop) => {
       acc[prop] = c[prop];
       return acc;
     }, {});
@@ -418,9 +428,9 @@ app.post('/users/courses/:courseId', authenticateUser, (req, res) => {
     return res.status(401).send({ message: 'Course not found' });
   }
 
-  const { email } = req;
+  const { username } = req;
 
-  const currentUser = USERS.find((u) => u.email === email);
+  const currentUser = USERS.find((u) => u.username === username);
 
   if (
     currentUser?.purchasedCourses &&
@@ -442,9 +452,9 @@ app.post('/users/courses/:courseId', authenticateUser, (req, res) => {
 });
 
 app.get('/users/purchasedCourses', authenticateUser, (req, res) => {
-  const { email } = req;
+  const { username } = req;
 
-  const currentUser = USERS.find((u) => u.email === email);
+  const currentUser = USERS.find((u) => u.username === username);
 
   if (!currentUser) {
     return res.status(404).send({ message: 'USER not found (no chance)' });
@@ -455,7 +465,7 @@ app.get('/users/purchasedCourses', authenticateUser, (req, res) => {
   const courseDetails = COURSES.filter((c) => purchasedCourses.includes(c.id));
 
   const coursesResponse = courseDetails.map((c) => {
-    return COURSE_PROPS.reduce((acc, prop) => {
+    return COURSE_RES_PROPS.reduce((acc, prop) => {
       acc[prop] = c[prop];
       return acc;
     }, {});
