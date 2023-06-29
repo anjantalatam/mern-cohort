@@ -11,10 +11,10 @@ describe('Todo API', () => {
 
   beforeAll((done) => {
     if (globalServer) {
-        globalServer.close();
+      globalServer.close();
     }
     globalServer = server.listen(3000);
-    done()
+    done();
   });
 
   afterAll((done) => {
@@ -65,6 +65,7 @@ describe('Todo API', () => {
 
       res.on('end', () => {
         const todos = JSON.parse(data);
+
         expect(Array.isArray(todos)).toBe(true);
         expect(todos.length).toBe(1);
         expect(todos[0].title).toBe(todo.title);
