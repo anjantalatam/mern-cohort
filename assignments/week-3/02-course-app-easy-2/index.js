@@ -329,7 +329,9 @@ app.get('/admin/courses', authenticateAdmin, (req, res) => {
   const admin = ADMINS.find((u) => u.email === email);
 
   if (!admin) {
-    return res.send({ message: 'USER not found (no chance for this error)' });
+    return res
+      .status(404)
+      .send({ message: 'USER not found (no chance for this error)' });
   }
 
   const coursesByAdmin = COURSES.filter((c) => c.instructorId === admin.id);
@@ -368,6 +370,7 @@ app.post('/users/signup', (req, res) => {
     password,
   });
 
+  // generate token
   const token = jwt.sign({ email }, jwtSecret, {
     expiresIn: '1h',
   });
@@ -390,6 +393,7 @@ app.post('/users/login', (req, res) => {
     return res.status(401).send({ message: 'Invalid Credentials' });
   }
 
+  // generate token
   const token = jwt.sign({ email }, jwtSecret, {
     expiresIn: '1h',
   });
@@ -414,7 +418,7 @@ app.post('/users/courses/:courseId', authenticateUser, (req, res) => {
     return res.status(401).send({ message: 'Course not found' });
   }
 
-  const { email } = req.headers;
+  const { email } = req;
 
   const currentUser = USERS.find((u) => u.email === email);
 
@@ -438,13 +442,15 @@ app.post('/users/courses/:courseId', authenticateUser, (req, res) => {
 });
 
 app.get('/users/purchasedCourses', authenticateUser, (req, res) => {
-  const { email } = req.headers;
+  const { email } = req;
 
   const currentUser = USERS.find((u) => u.email === email);
 
-  const purchasedCourses = currentUser?.purchasedCourses || [];
+  if (!currentUser) {
+    return res.status(404).send({ message: 'USER not found (no chance)' });
+  }
 
-  console.log(purchasedCourses, 'pcs');
+  const purchasedCourses = currentUser?.purchasedCourses || [];
 
   const courseDetails = COURSES.filter((c) => purchasedCourses.includes(c.id));
 
