@@ -12,16 +12,20 @@ let ADMINS = [];
 let COURSES = [];
 let USERS = [];
 
+const enableStore = true;
+
 // ADMIN middleware
 
 function authenticateAdmin(req, res, next) {
-  const { email, password } = req.headers;
+  const { username, password } = req.headers;
 
-  if (!email || !password) {
-    return res.status(400).send({ message: 'Email and Password are required' });
+  if (!username || !password) {
+    return res
+      .status(400)
+      .send({ message: 'Username and Password are required' });
   }
 
-  const adminFromDb = ADMINS.find((a) => a.email === email);
+  const adminFromDb = ADMINS.find((a) => a.username === username);
 
   if (adminFromDb.password !== password) {
     return res.status(401).send({ message: 'Invalid Credentials' });
@@ -33,13 +37,15 @@ function authenticateAdmin(req, res, next) {
 // USER middleware
 
 function authenticateUser(req, res, next) {
-  const { email, password } = req.headers;
+  const { username, password } = req.headers;
 
-  if (!email || !password) {
-    return res.status(400).send({ message: 'Email and Password are required' });
+  if (!username || !password) {
+    return res
+      .status(400)
+      .send({ message: 'Username and Password are required' });
   }
 
-  const userFromDb = USERS.find((a) => a.email === email);
+  const userFromDb = USERS.find((a) => a.username === username);
 
   if (userFromDb.password !== password) {
     return res.status(401).send({ message: 'Invalid Credentials' });
@@ -47,6 +53,8 @@ function authenticateUser(req, res, next) {
 
   next();
 }
+
+// <---------------------- Commenting for now ---------------------->
 
 // admins store
 fs.readFile(
@@ -59,9 +67,9 @@ fs.readFile(
         JSON.stringify([]),
         (err) => {
           if (err) {
-            console.log('Error in writing to file');
+            // console.log('Error in writing to file');
           } else {
-            console.log('Store Created');
+            // console.log('Store Created');
           }
         }
       );
@@ -93,9 +101,9 @@ fs.readFile(
         JSON.stringify([]),
         (err) => {
           if (err) {
-            console.log('Error in writing to file');
+            // console.log('Error in writing to file');
           } else {
-            console.log('Store Created');
+            // console.log('Store Created');
           }
         }
       );
@@ -124,9 +132,9 @@ fs.readFile(path.join(__dirname, '/store/users.json'), 'utf-8', (err, data) => {
       JSON.stringify([]),
       (err) => {
         if (err) {
-          console.log('Error in writing to file');
+          // console.log('Error in writing to file');
         } else {
-          console.log('Store Created');
+          // console.log('Store Created');
         }
       }
     );
@@ -152,10 +160,10 @@ function updateAdminStore() {
     JSON.stringify(ADMINS),
     (err) => {
       if (err) {
-        console.log('ADMIN store update failed');
+        // console.log('ADMIN store update failed');
         return;
       }
-      console.log('ADMIN Store updated');
+      // console.log('ADMIN Store updated');
     }
   );
 }
@@ -166,10 +174,10 @@ function updateCoursesStore() {
     JSON.stringify(COURSES),
     (err) => {
       if (err) {
-        console.log('COURSES store update failed');
+        // console.log('COURSES store update failed');
         return;
       }
-      console.log('COURSES Store updated');
+      // console.log('COURSES Store updated');
     }
   );
 }
@@ -180,23 +188,27 @@ function updateUsersStore() {
     JSON.stringify(USERS),
     (err) => {
       if (err) {
-        console.log('USERS store update failed');
+        // console.log('USERS store update failed');
         return;
       }
-      console.log('USERS Store updated');
+      // console.log('USERS Store updated');
     }
   );
 }
 
+// <---------------------- Commenting for now ---------------------->
+
 // Admin routes
 app.post('/admin/signup', (req, res) => {
-  const { email, password } = req.body;
+  const { username, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).send({ message: 'Email and Password are required' });
+  if (!username || !password) {
+    return res
+      .status(400)
+      .send({ message: 'Username and Password are required' });
   }
 
-  const admin = ADMINS.find((a) => a.email === email);
+  const admin = ADMINS.find((a) => a.username === username);
 
   if (admin) {
     return res.status(409).send({ message: 'User exists' });
@@ -204,23 +216,25 @@ app.post('/admin/signup', (req, res) => {
 
   ADMINS.push({
     id: uuid(),
-    email,
+    username,
     password,
   });
 
-  updateAdminStore();
+  enableStore && updateAdminStore();
 
-  res.status(200).send({ message: 'User created successfully' });
+  res.status(200).send({ message: 'Admin created successfully' });
 });
 
 app.post('/admin/login', (req, res) => {
-  const { email, password } = req.headers;
+  const { username, password } = req.headers;
 
-  if (!email || !password) {
-    return res.status(400).send({ message: 'Email and Password are required' });
+  if (!username || !password) {
+    return res
+      .status(400)
+      .send({ message: 'Username and Password are required' });
   }
 
-  const adminFromDb = ADMINS.find((a) => a.email === email);
+  const adminFromDb = ADMINS.find((a) => a.username === username);
   if (adminFromDb?.password !== password) {
     return res.status(401).send({ message: 'Invalid Credentials' });
   }
@@ -230,7 +244,7 @@ app.post('/admin/login', (req, res) => {
 
 app.post('/admin/courses', authenticateAdmin, (req, res) => {
   const { title, description, price, imageLink, published } = req.body;
-  const { email } = req.headers;
+  const { username } = req.headers;
 
   const properties = [
     'title',
@@ -244,7 +258,7 @@ app.post('/admin/courses', authenticateAdmin, (req, res) => {
     return res.status(401).send({ message: 'All properties are required' });
   }
 
-  const adminUser = ADMINS.find((a) => a.email === email);
+  const adminUser = ADMINS.find((a) => a.username === username);
 
   const courseId = uuid();
 
@@ -267,8 +281,8 @@ app.post('/admin/courses', authenticateAdmin, (req, res) => {
   }
 
   // update stores
-  updateAdminStore();
-  updateCoursesStore();
+  enableStore && updateAdminStore();
+  enableStore && updateCoursesStore();
 
   res.send({ message: 'Course created successfully', courseId });
 });
@@ -313,15 +327,15 @@ app.put('/admin/courses/:courseId', authenticateAdmin, (req, res) => {
 
   COURSES = updatedCourses;
 
-  updateCoursesStore();
+  enableStore && updateCoursesStore();
 
   res.send({ message: 'Course updated successfully' });
 });
 
 app.get('/admin/courses', authenticateAdmin, (req, res) => {
-  const { email } = req.headers;
+  const { username } = req.headers;
 
-  const admin = ADMINS.find((u) => u.email === email);
+  const admin = ADMINS.find((u) => u.username === username);
 
   if (!admin) {
     return res.send({ message: 'USER not found (no chance for this error)' });
@@ -345,13 +359,15 @@ app.get('/admins', (req, res) => {
 
 // <-------------------- User routes -------------------->
 app.post('/users/signup', (req, res) => {
-  const { email, password } = req.body;
+  const { username, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).send({ message: 'Email and Password are required' });
+  if (!username || !password) {
+    return res
+      .status(400)
+      .send({ message: 'Username and Password are required' });
   }
 
-  const user = USERS.find((a) => a.email === email);
+  const user = USERS.find((a) => a.username === username);
 
   if (user) {
     return res.status(409).send({ message: 'User exists' });
@@ -359,23 +375,25 @@ app.post('/users/signup', (req, res) => {
 
   USERS.push({
     id: uuid(),
-    email,
+    username,
     password,
   });
 
-  updateUsersStore();
+  enableStore && updateUsersStore();
 
   res.status(200).send({ message: 'User created successfully' });
 });
 
 app.post('/users/login', (req, res) => {
-  const { email, password } = req.headers;
+  const { username, password } = req.headers;
 
-  if (!email || !password) {
-    return res.status(400).send({ message: 'Email and Password are required' });
+  if (!username || !password) {
+    return res
+      .status(400)
+      .send({ message: 'Username and Password are required' });
   }
 
-  const userFromDb = USERS.find((u) => u.email === email);
+  const userFromDb = USERS.find((u) => u.username === username);
   if (userFromDb?.password !== password) {
     return res.status(401).send({ message: 'Invalid Credentials' });
   }
@@ -400,9 +418,9 @@ app.post('/users/courses/:courseId', authenticateUser, (req, res) => {
     return res.status(401).send({ message: 'Course not found' });
   }
 
-  const { email } = req.headers;
+  const { username } = req.headers;
 
-  const currentUser = USERS.find((u) => u.email === email);
+  const currentUser = USERS.find((u) => u.username === username);
 
   if (
     currentUser?.purchasedCourses &&
@@ -418,19 +436,17 @@ app.post('/users/courses/:courseId', authenticateUser, (req, res) => {
     currentUser.purchasedCourses.push(courseId);
   }
 
-  updateUsersStore();
+  enableStore && updateUsersStore();
 
   res.send({ message: 'Course purchased successfully' });
 });
 
 app.get('/users/purchasedCourses', authenticateUser, (req, res) => {
-  const { email } = req.headers;
+  const { username } = req.headers;
 
-  const currentUser = USERS.find((u) => u.email === email);
+  const currentUser = USERS.find((u) => u.username === username);
 
   const purchasedCourses = currentUser?.purchasedCourses || [];
-
-  console.log(purchasedCourses, 'pcs');
 
   const courseDetails = COURSES.filter((c) => purchasedCourses.includes(c.id));
 
@@ -452,6 +468,8 @@ app.use('*', (req, res) => {
   res.status(404).send({ message: 'Route not found' });
 });
 
-app.listen(PORT, () => {
-  console.log('Server is listening on port 3000');
-});
+// app.listen(PORT, () => {
+//   console.log('Server is listening on port 3000');
+// });
+
+module.exports = app;
