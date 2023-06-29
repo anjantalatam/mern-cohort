@@ -206,9 +206,14 @@ app.post('/admin/signup', (req, res) => {
     password,
   });
 
+  // payload should be object when expiresIn is used
+  const token = jwt.sign({ email }, jwtSecret, {
+    expiresIn: '1h', // expires in 1hour
+  });
+
   updateAdminStore();
 
-  res.status(200).send({ message: 'User created successfully' });
+  res.status(200).send({ message: 'Admin created successfully', token });
 });
 
 app.post('/admin/login', (req, res) => {
@@ -219,16 +224,22 @@ app.post('/admin/login', (req, res) => {
   }
 
   const adminFromDb = ADMINS.find((a) => a.email === email);
+
   if (adminFromDb?.password !== password) {
     return res.status(401).send({ message: 'Invalid Credentials' });
   }
 
-  res.send({ message: 'Logged in successfully' });
+  // payload should be object when expiresIn is used
+  const token = jwt.sign({ email }, jwtSecret, {
+    expiresIn: '1h', // expires in 1hour
+  });
+
+  res.send({ message: 'Logged in successfully', token });
 });
 
 app.post('/admin/courses', authenticateAdmin, (req, res) => {
   const { title, description, price, imageLink, published } = req.body;
-  const { email } = req.headers;
+  const { email } = req;
 
   const properties = [
     'title',
@@ -317,7 +328,7 @@ app.put('/admin/courses/:courseId', authenticateAdmin, (req, res) => {
 });
 
 app.get('/admin/courses', authenticateAdmin, (req, res) => {
-  const { email } = req.headers;
+  const { email } = req;
 
   const admin = ADMINS.find((u) => u.email === email);
 
