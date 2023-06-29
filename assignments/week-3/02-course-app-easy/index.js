@@ -391,7 +391,10 @@ app.get('/users/courses', authenticateUser, (req, res) => {
 app.post('/users/courses/:courseId', authenticateUser, (req, res) => {
   const { courseId } = req.params;
 
-  const course = COURSES.find((c) => c.id === courseId);
+  // allow only published courses to purchase
+  const course = COURSES.filter((c) => c.published).find(
+    (c) => c.id === courseId
+  );
 
   if (!course) {
     return res.status(401).send({ message: 'Course not found' });
