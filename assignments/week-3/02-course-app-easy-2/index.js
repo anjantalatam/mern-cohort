@@ -31,19 +31,15 @@ function authenticateAdmin(req, res, next) {
 // USER middleware
 
 function authenticateUser(req, res, next) {
-  const { email, password } = req.headers;
+  const { authorization } = req.headers;
 
-  if (!email || !password) {
-    return res.status(400).send({ message: 'Email and Password are required' });
+  try {
+    const decryptedJwt = jwt.verify(authorization, jwtSecret);
+    req.email = decryptedJwt.email;
+    next();
+  } catch (e) {
+    return res.status(401).send({ message: 'Token expired' });
   }
-
-  const userFromDb = USERS.find((a) => a.email === email);
-
-  if (userFromDb.password !== password) {
-    return res.status(401).send({ message: 'Invalid Credentials' });
-  }
-
-  next();
 }
 
 // admins store
@@ -372,9 +368,13 @@ app.post('/users/signup', (req, res) => {
     password,
   });
 
+  const token = jwt.sign({ email }, jwtSecret, {
+    expiresIn: '1h',
+  });
+
   updateUsersStore();
 
-  res.status(200).send({ message: 'User created successfully' });
+  res.status(200).send({ message: 'User created successfully', token });
 });
 
 app.post('/users/login', (req, res) => {
@@ -385,11 +385,16 @@ app.post('/users/login', (req, res) => {
   }
 
   const userFromDb = USERS.find((u) => u.email === email);
+
   if (userFromDb?.password !== password) {
     return res.status(401).send({ message: 'Invalid Credentials' });
   }
 
-  res.send({ message: 'Logged in successfully' });
+  const token = jwt.sign({ email }, jwtSecret, {
+    expiresIn: '1h',
+  });
+
+  res.send({ message: 'Logged in successfully', token });
 });
 
 app.get('/users/courses', authenticateUser, (req, res) => {
