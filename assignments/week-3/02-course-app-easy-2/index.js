@@ -14,6 +14,14 @@ let ADMINS = [];
 let COURSES = [];
 let USERS = [];
 
+const COURSE_PROPS = [
+  'title',
+  'description',
+  'price',
+  'imageLink',
+  'published',
+];
+
 // ADMIN middleware
 
 function authenticateAdmin(req, res, next) {
@@ -237,15 +245,7 @@ app.post('/admin/courses', authenticateAdmin, (req, res) => {
   const { title, description, price, imageLink, published } = req.body;
   const { email } = req;
 
-  const properties = [
-    'title',
-    'description',
-    'price',
-    'imageLink',
-    'published',
-  ];
-
-  if (properties.some((prop) => req.body[prop] === undefined)) {
+  if (COURSE_PROPS.some((prop) => req.body[prop] === undefined)) {
     return res.status(401).send({ message: 'All properties are required' });
   }
 
@@ -289,21 +289,13 @@ app.put('/admin/courses/:courseId', authenticateAdmin, (req, res) => {
 
   const body = req.body;
 
-  const properties = [
-    'title',
-    'description',
-    'price',
-    'imageLink',
-    'published',
-  ];
-
-  if (properties.every((prop) => body[prop] === undefined)) {
+  if (COURSE_PROPS.every((prop) => body[prop] === undefined)) {
     return res.status(400).send({ message: 'Atleast one field required' });
   }
 
   const newCourse = { ...course };
 
-  properties.forEach((prop) => {
+  COURSE_PROPS.forEach((prop) => {
     if (body[prop] !== undefined) {
       newCourse[prop] = body[prop];
     }
@@ -403,7 +395,15 @@ app.post('/users/login', (req, res) => {
 
 app.get('/users/courses', authenticateUser, (req, res) => {
   const publishedCourses = COURSES.filter((c) => c.published);
-  res.send({ courses: publishedCourses });
+
+  const coursesResponse = publishedCourses.map((c) => {
+    return COURSE_PROPS.reduce((acc, prop) => {
+      acc[prop] = c[prop];
+      return acc;
+    }, {});
+  });
+
+  res.send({ courses: coursesResponse });
 });
 
 app.post('/users/courses/:courseId', authenticateUser, (req, res) => {
@@ -454,7 +454,14 @@ app.get('/users/purchasedCourses', authenticateUser, (req, res) => {
 
   const courseDetails = COURSES.filter((c) => purchasedCourses.includes(c.id));
 
-  res.send({ courses: courseDetails });
+  const coursesResponse = courseDetails.map((c) => {
+    return COURSE_PROPS.reduce((acc, prop) => {
+      acc[prop] = c[prop];
+      return acc;
+    }, {});
+  });
+
+  res.send({ courses: coursesResponse });
 });
 
 // <-------------------- USER DEV Route -------------------->
