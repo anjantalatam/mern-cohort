@@ -14,6 +14,16 @@ let USERS = [];
 
 const enableStore = true;
 
+const COURSE_PROPS = [
+  'title',
+  'description',
+  'price',
+  'imageLink',
+  'published',
+];
+
+const COURSE_RES_PROPS = [...COURSE_PROPS, 'id'];
+
 // ADMIN middleware
 
 function authenticateAdmin(req, res, next) {
@@ -246,7 +256,7 @@ app.post('/admin/courses', authenticateAdmin, (req, res) => {
   const { title, description, price, imageLink, published } = req.body;
   const { username } = req.headers;
 
-  const properties = [
+  const COURSE_PROPS = [
     'title',
     'description',
     'price',
@@ -254,7 +264,7 @@ app.post('/admin/courses', authenticateAdmin, (req, res) => {
     'published',
   ];
 
-  if (properties.some((prop) => req.body[prop] === undefined)) {
+  if (COURSE_PROPS.some((prop) => req.body[prop] === undefined)) {
     return res.status(401).send({ message: 'All properties are required' });
   }
 
@@ -298,7 +308,7 @@ app.put('/admin/courses/:courseId', authenticateAdmin, (req, res) => {
 
   const body = req.body;
 
-  const properties = [
+  const COURSE_PROPS = [
     'title',
     'description',
     'price',
@@ -306,13 +316,13 @@ app.put('/admin/courses/:courseId', authenticateAdmin, (req, res) => {
     'published',
   ];
 
-  if (properties.every((prop) => body[prop] === undefined)) {
+  if (COURSE_PROPS.every((prop) => body[prop] === undefined)) {
     return res.status(400).send({ message: 'Atleast one field required' });
   }
 
   const newCourse = { ...course };
 
-  properties.forEach((prop) => {
+  COURSE_PROPS.forEach((prop) => {
     if (body[prop] !== undefined) {
       newCourse[prop] = body[prop];
     }
@@ -403,7 +413,15 @@ app.post('/users/login', (req, res) => {
 
 app.get('/users/courses', authenticateUser, (req, res) => {
   const publishedCourses = COURSES.filter((c) => c.published);
-  res.send({ courses: publishedCourses });
+
+  const coursesResponse = publishedCourses.map((c) => {
+    return COURSE_RES_PROPS.reduce((acc, prop) => {
+      acc[prop] = c[prop];
+      return acc;
+    }, {});
+  });
+
+  res.send({ courses: coursesResponse });
 });
 
 app.post('/users/courses/:courseId', authenticateUser, (req, res) => {
@@ -450,7 +468,14 @@ app.get('/users/purchasedCourses', authenticateUser, (req, res) => {
 
   const courseDetails = COURSES.filter((c) => purchasedCourses.includes(c.id));
 
-  res.send({ courses: courseDetails });
+  const coursesResponse = courseDetails.map((c) => {
+    return COURSE_RES_PROPS.reduce((acc, prop) => {
+      acc[prop] = c[prop];
+      return acc;
+    }, {});
+  });
+
+  res.send({ courses: coursesResponse });
 });
 
 // <-------------------- USER DEV Route -------------------->
@@ -464,12 +489,12 @@ app.get('/users', (req, res) => {
   res.send(USERS);
 });
 
-app.use('*', (req, res) => {
-  res.status(404).send({ message: 'Route not found' });
-});
-
-// app.listen(PORT, () => {
-//   console.log('Server is listening on port 3000');
+// app.use('*', (req, res) => {
+//   res.status(404).send({ message: 'Route not found' });
 // });
+
+app.listen(PORT, () => {
+  console.log('Server is listening on port 3000');
+});
 
 module.exports = app;
