@@ -4,6 +4,9 @@ import {
   Button,
   Container,
   FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
   TextField,
   Typography,
 } from '@mui/material';
@@ -12,13 +15,20 @@ import { API_END_POINTS, FALL_BACK_ERROR_MESSAGE } from '../utility';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 import { useState } from 'react';
 import { useSnackbar } from '../contexts/snackbarProvider';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-function CreateCourse() {
+function CreateCourse({ mode }) {
+  const { state } = useLocation();
+  const navigate = useNavigate();
+
+  const isEditMode = mode === 'edit';
+
   const [courseDetails, setCourseDetails] = useState({
-    title: '',
-    description: '',
-    price: '',
-    imageLink: '',
+    title: state.title ?? '',
+    description: state.description ?? '',
+    price: state.price ?? '',
+    imageLink: state.imageLink ?? '',
+    published: state.published ?? false,
   });
 
   const [error, setError] = useState({ price: null });
@@ -49,34 +59,38 @@ function CreateCourse() {
 
     const token = localStorage.getItem('token');
 
+    const reqBody = {
+      title: data.get('title'),
+      description: data.get('description'),
+      price: Number(data.get('price')),
+      imageLink: data.get('imageLink'),
+      published: isEditMode ? data.get('published') : true,
+    };
+
+    let url = `${API_END_POINTS.dev}/admin/courses`;
+
+    if (isEditMode) {
+      url = `${url}/${state.id}`;
+    }
+
     try {
-      const res = await axios.post(
-        `${API_END_POINTS.dev}/admin/courses`,
-        {
-          title: data.get('title'),
-          description: data.get('description'),
-          price: Number(data.get('price')),
-          imageLink: data.get('imageLink'),
-          published: true,
+      const res = await axios({
+        method: isEditMode ? 'put' : 'post',
+        url: url,
+        data: reqBody,
+        headers: {
+          Authorization: token,
         },
-        {
-          headers: {
-            Authorization: token,
-          },
-        }
-      );
+      });
+
       if (res) {
         openSnackbar(res.data.message);
+        navigate('/courses');
       }
       console.log(res, 'res');
     } catch (e) {
       openSnackbar(e?.response?.data?.message ?? FALL_BACK_ERROR_MESSAGE);
     }
-
-    // console.log({
-    //   email: data.get('email'),
-    //   password: data.get('password'),
-    // });
   };
 
   return (
@@ -94,66 +108,86 @@ function CreateCourse() {
         <Typography component="h1" variant="h5">
           Create Course
         </Typography>
-        <FormControl error={true}>
-          <Box
-            component="form"
-            onSubmit={handleSubmit}
-            sx={{ mt: 1 }}
-            onChange={handleChange}>
-            <TextField
-              name="title"
-              margin="normal"
-              required
-              fullWidth
-              label="Title"
-              autoComplete="title"
-              autoFocus
-              type="text"
-            />
 
-            <TextField
-              name="description"
-              margin="normal"
-              required
-              fullWidth
-              label="Description"
-              autoComplete="description"
-              type="text"
-            />
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+          sx={{ mt: 1 }}
+          onChange={handleChange}>
+          <TextField
+            value={courseDetails.title}
+            name="title"
+            margin="normal"
+            required
+            fullWidth
+            label="Title"
+            autoComplete="title"
+            autoFocus
+            type="text"
+          />
 
-            <TextField
-              name="price"
-              margin="normal"
-              required
-              fullWidth
-              label="Price"
-              autoComplete="price"
-              type="number"
-              error={!!error?.price}
-              color={error?.price ? 'error' : 'primary'}
-              helperText={error?.price || null}
-            />
+          <TextField
+            name="description"
+            value={courseDetails.description}
+            margin="normal"
+            required
+            fullWidth
+            label="Description"
+            autoComplete="description"
+            type="text"
+          />
 
-            <TextField
-              name="imageLink"
-              margin="normal"
-              required
-              fullWidth
-              label="Image Link"
-              autoComplete="imageLink"
-              type="text"
-            />
+          <TextField
+            name="price"
+            value={courseDetails.price}
+            margin="normal"
+            required
+            fullWidth
+            label="Price"
+            autoComplete="price"
+            type="number"
+            error={!!error?.price}
+            color={error?.price ? 'error' : 'primary'}
+            helperText={error?.price || null}
+          />
 
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-              disabled={Object.values(error).some((value) => !!value)}>
-              Create
-            </Button>
-          </Box>
-        </FormControl>
+          <TextField
+            name="imageLink"
+            value={courseDetails.imageLink}
+            margin="normal"
+            required
+            fullWidth
+            label="Image Link"
+            autoComplete="imageLink"
+            type="text"
+          />
+          {isEditMode && (
+            <FormControl required margin="normal" fullWidth>
+              <InputLabel id="demo-simple-select-helper-label">
+                Course Status
+              </InputLabel>
+              <Select
+                name="published"
+                labelId="demo-simple-select-helper-label"
+                id="demo-simple-select-helper"
+                value={courseDetails.published}
+                label="Course Status"
+                onChange={handleChange}>
+                <MenuItem value={true}>Visible</MenuItem>
+                <MenuItem value={false}>Hidden</MenuItem>
+              </Select>
+            </FormControl>
+          )}
+
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+            disabled={Object.values(error).some((value) => !!value)}>
+            {isEditMode ? 'Save Changes' : 'Create'}
+          </Button>
+        </Box>
       </Box>
     </Container>
   );
