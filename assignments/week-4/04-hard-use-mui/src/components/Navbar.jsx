@@ -5,6 +5,7 @@ import {
   Toolbar,
   Typography,
 } from '@mui/material';
+import OndemandVideoIcon from '@mui/icons-material/OndemandVideo';
 
 import { useNavigate } from 'react-router-dom';
 
@@ -17,6 +18,7 @@ function Navbar() {
         styles={{ ul: { margin: 0, padding: 0, listStyle: 'none' } }}
       />
       <Toolbar sx={{ flexWrap: 'wrap' }}>
+        <OndemandVideoIcon sx={{ mr: 1 }} />
         <Typography variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}>
           Course Hub
         </Typography>
