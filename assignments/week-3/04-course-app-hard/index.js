@@ -6,7 +6,7 @@ const PORT = 3000;
 const jwt = require('jsonwebtoken');
 const jwtSecret = 'dev-jwt-secret';
 const mongoose = require('mongoose');
-const { Admin, Course } = require('./models');
+const { Admin, Course, User } = require('./models');
 
 app.use(bodyParser.json());
 
@@ -193,7 +193,7 @@ app.get('/admins', async (req, res) => {
 });
 
 // <-------------------- User routes -------------------->
-app.post('/users/signup', (req, res) => {
+app.post('/users/signup', async (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
@@ -202,30 +202,25 @@ app.post('/users/signup', (req, res) => {
       .send({ message: 'Username and Password are required' });
   }
 
-  const user = USERS.find((a) => a.username === username);
+  const userFromDb = await User.findOne({ username });
 
-  if (user) {
+  if (userFromDb) {
     return res.status(409).send({ message: 'User exists' });
   }
 
-  USERS.push({
-    id: uuid(),
-    username,
-    password,
-  });
+  const newUser = new User({ username, password });
+
+  await newUser.save();
 
   // generate token
-  const token = jwt.sign({ username }, jwtSecret, {
+  const token = jwt.sign({ username, role: 'user' }, jwtSecret, {
     expiresIn: '1h',
   });
-
-  // update store
-  // updateUsersStore();
 
   res.status(200).send({ message: 'User created successfully', token });
 });
 
-app.post('/users/login', (req, res) => {
+app.post('/users/login', async (req, res) => {
   const { username, password } = req.headers;
 
   if (!username || !password) {
@@ -234,14 +229,14 @@ app.post('/users/login', (req, res) => {
       .send({ message: 'Username and Password are required' });
   }
 
-  const userFromDb = USERS.find((u) => u.username === username);
+  const userFromDb = await User.findOne({ username, password });
 
-  if (userFromDb?.password !== password) {
-    return res.status(401).send({ message: 'Invalid Credentials' });
+  if (!userFromDb) {
+    return res.status(401).send({ message: 'Invalid username or password' });
   }
 
   // generate token
-  const token = jwt.sign({ username }, jwtSecret, {
+  const token = jwt.sign({ username, role: 'user' }, jwtSecret, {
     expiresIn: '1h',
   });
 
