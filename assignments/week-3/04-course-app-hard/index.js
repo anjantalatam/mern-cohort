@@ -1,11 +1,11 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const app = express();
-const { v4: uuid } = require('uuid');
-const PORT = 3000;
-const jwt = require('jsonwebtoken');
-const jwtSecret = 'dev-jwt-secret';
 const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
+const app = express();
+const PORT = 3000;
+
+const jwtSecret = 'dev-jwt-secret';
 const { Admin, Course, User } = require('./models');
 
 app.use(bodyParser.json());
@@ -267,7 +267,7 @@ app.post('/users/courses/:courseId', authenticateJwt, async (req, res) => {
 
     res.send({ message: 'Course purchased successfully' });
   } catch (e) {
-    console.log(e);
+    console.log(e, 'catch error purchase course');
     return res.status(500).send({ message: 'Something went wrong' });
   }
 });
