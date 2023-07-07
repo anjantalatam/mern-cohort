@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 import Login from '../modules/Login';
 import Signup from '../modules/Signup';
 import Courses from '../modules/Courses';
+import CreateCourse from '../modules/CreateCourse';
 import NotFound from './NotFound';
 
 function RouterComponent() {
@@ -11,6 +12,7 @@ function RouterComponent() {
       <Route path="/signup" element={<Signup />} />
       <Route path="/login" element={<Login />} />
       <Route path="/courses" element={<Courses />} />
+      <Route path="/courses/create" element={<CreateCourse />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
