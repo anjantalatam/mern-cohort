@@ -10,10 +10,6 @@ const { Admin, Course, User } = require('./models');
 
 app.use(bodyParser.json());
 
-let ADMINS = [];
-let COURSES = [];
-let USERS = [];
-
 mongoose
   .connect('mongodb://localhost/courses')
   .then(() => {
@@ -41,20 +37,6 @@ function authenticateJwt(req, res, next) {
   try {
     const decryptedJwt = jwt.verify(authorization, jwtSecret);
     req.user = decryptedJwt;
-    next();
-  } catch (e) {
-    return res.status(401).send({ message: 'Token expired' });
-  }
-}
-
-// USER middleware
-
-function authenticateUser(req, res, next) {
-  const { authorization } = req.headers;
-
-  try {
-    const decryptedJwt = jwt.verify(authorization, jwtSecret);
-    req.username = decryptedJwt.username;
     next();
   } catch (e) {
     return res.status(401).send({ message: 'Token expired' });
@@ -189,7 +171,7 @@ app.get('/admins', async (req, res) => {
 
   const dbRes = await Admin.find();
 
-  res.send(ADMINS);
+  res.send(dbRes);
 });
 
 // <-------------------- User routes -------------------->
@@ -243,8 +225,8 @@ app.post('/users/login', async (req, res) => {
   res.send({ message: 'Logged in successfully', token });
 });
 
-app.get('/users/courses', authenticateUser, (req, res) => {
-  const publishedCourses = COURSES.filter((c) => c.published);
+app.get('/users/courses', authenticateJwt, async (req, res) => {
+  const publishedCourses = await Course.find({ published: true });
 
   const coursesResponse = publishedCourses.map((c) => {
     return COURSE_RES_PROPS.reduce((acc, prop) => {
@@ -256,56 +238,46 @@ app.get('/users/courses', authenticateUser, (req, res) => {
   res.send({ courses: coursesResponse });
 });
 
-app.post('/users/courses/:courseId', authenticateUser, (req, res) => {
+app.post('/users/courses/:courseId', authenticateJwt, async (req, res) => {
   const { courseId } = req.params;
 
-  // allow only published courses to purchase
-  const course = COURSES.filter((c) => c.published).find(
-    (c) => c.id === courseId
-  );
+  try {
+    if (!mongoose.Types.ObjectId.isValid(courseId)) {
+      return res.status(400).json({ error: 'Invalid courseId' });
+    }
 
-  if (!course) {
-    return res.status(401).send({ message: 'Course not found' });
-  }
+    const course = await Course.findOne({ _id: courseId, published: true });
 
-  const { username } = req;
+    if (!course) {
+      return res.status(401).send({ message: 'Course not found' });
+    }
 
-  const currentUser = USERS.find((u) => u.username === username);
+    const { username } = req.user;
 
-  if (
-    currentUser?.purchasedCourses &&
-    currentUser.purchasedCourses.includes(courseId)
-  ) {
-    // conflict status code
-    return res.status(409).send({ message: 'Course purchased already' });
-  }
+    const currentUser = await User.findOne({ username });
 
-  if (!currentUser?.purchasedCourses) {
-    currentUser.purchasedCourses = [courseId];
-  } else {
+    if (currentUser?.purchasedCourses.includes(courseId)) {
+      // conflict status code
+      return res.status(409).send({ message: 'Course purchased already' });
+    }
+
     currentUser.purchasedCourses.push(courseId);
+
+    await currentUser.save();
+
+    res.send({ message: 'Course purchased successfully' });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).send({ message: 'Something went wrong' });
   }
-
-  // update store
-  // updateUsersStore();
-
-  res.send({ message: 'Course purchased successfully' });
 });
 
-app.get('/users/purchasedCourses', authenticateUser, (req, res) => {
-  const { username } = req;
+app.get('/users/purchasedCourses', authenticateJwt, async (req, res) => {
+  const { username } = req.user;
 
-  const currentUser = USERS.find((u) => u.username === username);
+  const user = await User.findOne({ username }).populate('purchasedCourses');
 
-  if (!currentUser) {
-    return res.status(404).send({ message: 'USER not found (no chance)' });
-  }
-
-  const purchasedCourses = currentUser?.purchasedCourses || [];
-
-  const courseDetails = COURSES.filter((c) => purchasedCourses.includes(c.id));
-
-  const coursesResponse = courseDetails.map((c) => {
+  const coursesResponse = user.purchasedCourses?.map((c) => {
     return COURSE_RES_PROPS.reduce((acc, prop) => {
       acc[prop] = c[prop];
       return acc;
@@ -316,14 +288,16 @@ app.get('/users/purchasedCourses', authenticateUser, (req, res) => {
 });
 
 // <-------------------- USER DEV Route -------------------->
-app.get('/users', (req, res) => {
+app.get('/users', async (req, res) => {
   const { 'dev-mode': devMode } = req.headers;
 
   if (!devMode) {
     return res.send(401);
   }
 
-  res.send(USERS);
+  const users = await User.find();
+
+  res.send(users);
 });
 
 app.use('*', (req, res) => {
