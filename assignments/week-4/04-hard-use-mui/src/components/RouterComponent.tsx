@@ -13,6 +13,7 @@ function RouterComponent() {
       <Route path="/login" element={<Login />} />
       <Route path="/courses" element={<Courses />} />
       <Route path="/courses/create" element={<CreateCourse />} />
+      <Route path="/courses/edit" element={<CreateCourse mode="edit" />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
