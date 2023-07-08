@@ -85,7 +85,7 @@ function Navbar() {
     {
       key: 'logout',
       label: 'Logout',
-      route: '/',
+      route: '/tutor',
       onClick: logout,
       isEnabled: isAuthenticated,
     },

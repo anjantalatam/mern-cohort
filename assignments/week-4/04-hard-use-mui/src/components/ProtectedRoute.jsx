@@ -1,10 +1,10 @@
 import { useAuth } from '../contexts';
 import { Navigate } from 'react-router-dom';
 
-function ProtectedRoute({ children }) {
+function ProtectedRoute({ children, redirectRoute = '/' }) {
   const { isAuthenticated } = useAuth();
 
-  return isAuthenticated ? children : <Navigate to="/" replace />;
+  return isAuthenticated ? children : <Navigate to={redirectRoute} replace />;
 }
 
 export default ProtectedRoute;

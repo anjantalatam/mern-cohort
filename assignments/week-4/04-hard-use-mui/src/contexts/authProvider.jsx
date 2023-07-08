@@ -4,17 +4,27 @@ import { customAxios, setAuthInterceptor } from '../axios';
 export const AuthContext = createContext({});
 
 function AuthProvider({ children }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    !!localStorage.getItem('token')
+  );
+  const [currentRole, setCurrentRole] = useState(localStorage.getItem('role'));
 
   const logout = () => {
     localStorage.removeItem('token');
     setIsAuthenticated(false);
+
+    localStorage.removeItem('role');
+    setIsAuthenticated(null);
   };
 
-  const createToken = (token) => {
+  const createToken = (token, role) => {
+    console.log(token, role, 'from create token');
     if (token) {
       localStorage.setItem('token', token);
+      localStorage.setItem('role', role);
+
       setIsAuthenticated(true);
+      setCurrentRole(role);
     }
   };
 
@@ -33,7 +43,8 @@ function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ createToken, isAuthenticated, logout }}>
+    <AuthContext.Provider
+      value={{ createToken, isAuthenticated, currentRole, logout }}>
       {children}
     </AuthContext.Provider>
   );
