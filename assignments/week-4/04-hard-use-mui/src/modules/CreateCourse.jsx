@@ -24,11 +24,11 @@ function CreateCourse({ mode }) {
   const isEditMode = mode === 'edit';
 
   const [courseDetails, setCourseDetails] = useState({
-    title: state.title ?? '',
-    description: state.description ?? '',
-    price: state.price ?? '',
-    imageLink: state.imageLink ?? '',
-    published: state.published ?? false,
+    title: state?.title ?? '',
+    description: state?.description ?? '',
+    price: state?.price ?? '',
+    imageLink: state?.imageLink ?? '',
+    published: state?.published ?? false,
   });
 
   const [error, setError] = useState({ price: null });

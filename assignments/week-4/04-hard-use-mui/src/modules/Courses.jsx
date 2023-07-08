@@ -35,16 +35,20 @@ function Courses() {
 
         setCourses(res.data.courses ?? []);
       } catch (e) {
-        console.log(e, 'error');
         openSnackbar(e.response.data.message);
-        // navigate to login
+        if (
+          e.response.data.code === 'token_expired' ||
+          e.response.data.code === 'token_missing'
+        ) {
+          navigate('/login');
+        }
       } finally {
         setLoading(false);
       }
     };
 
     getCourses();
-  }, [openSnackbar]);
+  }, [navigate, openSnackbar]);
 
   return (
     <Box
