@@ -9,28 +9,33 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+
 import { API_END_POINTS } from '../utility';
 import Password from '../components/Password';
+import { customAxios } from '../axios';
+import { useSnackbar } from '../contexts/snackbarProvider';
+import { useAuth } from '../contexts';
 
 function Signup() {
   const navigate = useNavigate();
+  const { openSnackbar } = useSnackbar();
+  const { createToken } = useAuth();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
 
-    const res = await axios.post(`${API_END_POINTS.dev}/admin/signup`, {
-      username: data.get('email'),
-      password: data.get('password'),
-    });
-
-    console.log(res, 'res');
-
-    // console.log({
-    //   email: data.get('email'),
-    //   password: data.get('password'),
-    // });
+    try {
+      const res = await customAxios.post(`${API_END_POINTS.dev}/admin/signup`, {
+        username: data.get('email'),
+        password: data.get('password'),
+      });
+      openSnackbar(res.data.message);
+      createToken(res.data.token);
+      navigate('/courses');
+    } catch (e) {
+      openSnackbar(e.response.data.message);
+    }
   };
 
   return (
