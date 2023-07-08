@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import { API_END_POINTS } from '../utility';
 import { useSnackbar } from '../contexts/snackbarProvider';
 import {
@@ -10,10 +9,13 @@ import {
   CardContent,
   CardMedia,
   Container,
+  Divider,
   Grid,
   Typography,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+
+import { customAxios } from '../axios';
 
 function Courses() {
   const [loading, setLoading] = useState(false);
@@ -27,11 +29,14 @@ function Courses() {
     const getCourses = async () => {
       try {
         setLoading(true);
-        const res = await axios.get(`${API_END_POINTS.dev}/admin/courses`, {
-          headers: {
-            Authorization: token,
-          },
-        });
+        const res = await customAxios.get(
+          `${API_END_POINTS.dev}/admin/courses`,
+          {
+            headers: {
+              Authorization: token,
+            },
+          }
+        );
 
         setCourses(res.data.courses ?? []);
       } catch (e) {
@@ -84,14 +89,38 @@ function Courses() {
                       image={course.imageLink}
                     />
 
-                    <CardContent sx={{ flexGrow: 1 }}>
+                    <CardContent
+                      sx={{
+                        flexGrow: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                      }}>
                       <Typography gutterBottom variant="h5" component="h2">
                         {course.title}
                       </Typography>
-                      <Typography>{course.description}</Typography>
+                      <Typography sx={{ mb: 3 }}>
+                        {course.description}
+                      </Typography>
+
+                      <Typography
+                        sx={{
+                          mt: 5,
+                          marginTop: 'auto',
+                          fontWeight: 600,
+                        }}>
+                        Price: {course.price}
+                      </Typography>
                     </CardContent>
-                    <CardActions>
-                      <Button size="small">View</Button>
+                    <Divider />
+                    <CardActions
+                      sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                      <Button
+                        size="small"
+                        onClick={() =>
+                          navigate(`/courses/${course.id}`, { state: course })
+                        }>
+                        View
+                      </Button>
                       <Button
                         size="small"
                         onClick={() =>
