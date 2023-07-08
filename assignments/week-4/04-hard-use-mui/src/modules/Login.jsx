@@ -10,7 +10,8 @@ import Container from '@mui/material/Container';
 import { useNavigate } from 'react-router-dom';
 import Password from '../components/Password';
 import { API_END_POINTS } from '../utility';
-import { useSnackbar } from '../contexts/snackbarProvider';
+import { useSnackbar } from '../contexts';
+
 import { customAxios } from '../axios';
 import { useAuth } from '../contexts';
 import PropTypes from 'prop-types';
@@ -42,8 +43,8 @@ function Login({ role }) {
       );
 
       openSnackbar(res.data.message);
-      createToken(res.data.token);
-      navigate('/courses');
+      createToken(res.data.token, res.data.role);
+      navigate(isTutor ? '/tutor/courses' : '/courses');
     } catch (e) {
       openSnackbar(e.response.data.message);
     }

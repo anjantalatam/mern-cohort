@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { API_END_POINTS } from '../utility';
 import Password from '../components/Password';
 import { customAxios } from '../axios';
-import { useSnackbar } from '../contexts/snackbarProvider';
+import { useSnackbar } from '../contexts';
 import { useAuth } from '../contexts';
 
 import PropTypes from 'prop-types';
@@ -30,7 +30,7 @@ function Signup({ role }) {
     const data = new FormData(event.currentTarget);
 
     try {
-      let url = `${API_END_POINTS.dev}/user/signup`;
+      let url = `${API_END_POINTS.dev}/users/signup`;
 
       if (isTutor) {
         url = `${API_END_POINTS.dev}/admin/signup`;
@@ -41,8 +41,8 @@ function Signup({ role }) {
         password: data.get('password'),
       });
       openSnackbar(res.data.message);
-      createToken(res.data.token);
-      navigate('/courses');
+      createToken(res.data.token, res.data.role);
+      navigate(isTutor ? '/tutor/courses' : '/courses');
     } catch (e) {
       openSnackbar(e.response.data.message);
     }
