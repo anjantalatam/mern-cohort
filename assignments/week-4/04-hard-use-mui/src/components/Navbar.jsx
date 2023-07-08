@@ -46,6 +46,12 @@ function Navbar() {
       isEnabled: isAuthenticated,
     },
     {
+      key: 'myCourses',
+      label: 'My Courses',
+      route: '/my-courses',
+      isEnabled: isAuthenticated,
+    },
+    {
       key: 'logout',
       label: 'Logout',
       route: '/',

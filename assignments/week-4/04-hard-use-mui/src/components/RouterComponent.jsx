@@ -26,24 +26,34 @@ function RouterComponent() {
         <Route path="login" element={<Login role="user" />} />
 
         {!isTutor && (
-          <Route path="courses" element={<Outlet />}>
+          <>
+            <Route path="courses" element={<Outlet />}>
+              <Route
+                index
+                element={
+                  <ProtectedRoute>
+                    <Courses />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path=":courseId"
+                element={
+                  <ProtectedRoute>
+                    <Course />
+                  </ProtectedRoute>
+                }
+              />
+            </Route>
             <Route
-              index
+              path="my-courses"
               element={
                 <ProtectedRoute>
-                  <Courses />
+                  <Courses type={'purchased-courses'} />
                 </ProtectedRoute>
               }
             />
-            <Route
-              path=":courseId"
-              element={
-                <ProtectedRoute>
-                  <Course />
-                </ProtectedRoute>
-              }
-            />
-          </Route>
+          </>
         )}
       </Route>
 

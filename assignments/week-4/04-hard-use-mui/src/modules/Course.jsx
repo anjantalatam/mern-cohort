@@ -38,7 +38,7 @@ function Course() {
         );
 
         openSnackbar(res.data.message);
-        // redirect to purchased courses
+        navigate('/my-courses');
       } catch (e) {
         openSnackbar(e.response.data.message);
       }

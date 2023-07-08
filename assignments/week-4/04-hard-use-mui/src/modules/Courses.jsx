@@ -18,7 +18,7 @@ import { customAxios } from '../axios';
 import PropTypes from 'prop-types';
 import { useAuth, useSnackbar } from '../contexts';
 
-function Courses() {
+function Courses({ type }) {
   const [loading, setLoading] = useState(false);
   const [courses, setCourses] = useState([]);
   const { openSnackbar } = useSnackbar();
@@ -27,16 +27,21 @@ function Courses() {
   const { currentRole } = useAuth();
 
   const isTutor = currentRole === 'admin';
+  const isTypePurchasedCourses = type === 'purchased-courses';
 
   useEffect(() => {
     const token = localStorage.getItem('token');
 
     const getCourses = async () => {
       let url = `${API_END_POINTS.dev}/users/courses`;
+      if (isTypePurchasedCourses) {
+        url = `${API_END_POINTS.dev}/users/purchasedCourses`;
+      }
 
       if (isTutor) {
         url = `${API_END_POINTS.dev}/admin/courses`;
       }
+
       try {
         setLoading(true);
         const res = await customAxios.get(url, {
@@ -60,7 +65,7 @@ function Courses() {
     };
 
     getCourses();
-  }, [isTutor, navigate, openSnackbar]);
+  }, [isTutor, isTypePurchasedCourses, navigate, openSnackbar]);
 
   return (
     <Box
@@ -70,19 +75,31 @@ function Courses() {
         flexDirection: 'column',
         alignItems: 'center',
       }}>
-      {loading && <>Loading...</>}
-      {isTutor && (
-        <Button
-          variant="contained"
-          onClick={() => navigate('/tutor/courses/create')}>
-          Create a Course
-        </Button>
-      )}
+      <Container sx={{ py: 8, pt: 0 }} maxWidth="md">
+        <Box
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+          sx={{ mb: 4 }}>
+          <Typography variant="h4">
+            {isTypePurchasedCourses ? 'My Courses' : 'Courses'}
+          </Typography>
+          {isTutor && (
+            <Button
+              variant="contained"
+              onClick={() => navigate('/tutor/courses/create')}>
+              Create a Course
+            </Button>
+          )}
+        </Box>
 
-      {!loading && courses.length == 0 && 'No Courses'}
+        {loading && <>Loading...</>}
 
-      {!loading && (
-        <Container sx={{ py: 8 }} maxWidth="md">
+        {!loading && courses.length == 0 && 'No Courses'}
+
+        {!loading && (
           <Grid container spacing={4}>
             {courses.map((course) => {
               return (
@@ -161,8 +178,8 @@ function Courses() {
               );
             })}
           </Grid>
-        </Container>
-      )}
+        )}
+      </Container>
     </Box>
   );
 }
