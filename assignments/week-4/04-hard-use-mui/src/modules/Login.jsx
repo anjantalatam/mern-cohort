@@ -20,15 +20,18 @@ function Login({ role }) {
   const { createToken } = useAuth();
   const isTutor = role === 'admin';
 
-  console.log(isTutor);
-
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
 
     try {
+      let url = `${API_END_POINTS.dev}/users/login`;
+
+      if (isTutor) {
+        url = `${API_END_POINTS.dev}/admin/login`;
+      }
       const res = await customAxios.post(
-        `${API_END_POINTS.dev}/admin/login`,
+        url,
         {},
         {
           headers: {
