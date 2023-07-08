@@ -1,5 +1,6 @@
 import { useContext } from 'react';
 import { AuthContext } from './authProvider';
+import { RoleContext } from './roleProvider';
 
 function useAuth() {
   const authContext = useContext(AuthContext);
@@ -7,4 +8,9 @@ function useAuth() {
   return authContext;
 }
 
-export { useAuth };
+function useGetRole() {
+  const roleContext = useContext(RoleContext);
+  return roleContext;
+}
+
+export { useAuth, useGetRole };

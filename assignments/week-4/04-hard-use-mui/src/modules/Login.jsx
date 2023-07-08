@@ -13,11 +13,14 @@ import { API_END_POINTS } from '../utility';
 import { useSnackbar } from '../contexts/snackbarProvider';
 import { customAxios } from '../axios';
 import { useAuth } from '../contexts';
-
-function Login() {
+import PropTypes from 'prop-types';
+function Login({ role }) {
   const navigate = useNavigate();
   const { openSnackbar } = useSnackbar();
   const { createToken } = useAuth();
+  const isTutor = role === 'admin';
+
+  console.log(isTutor);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -56,7 +59,7 @@ function Login() {
           <LockOutlinedIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
-          Login
+          {isTutor ? 'Tutor Login' : 'Login'}
         </Typography>
         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
           <TextField
@@ -82,7 +85,9 @@ function Login() {
           <Grid container>
             <Grid item xs></Grid>
             <Grid item>
-              <Link onClick={() => navigate('/signup')} variant="body2">
+              <Link
+                onClick={() => navigate(isTutor ? '/tutor/signup' : '/signup')}
+                variant="body2">
                 {"Don't have an account? Sign Up"}
               </Link>
             </Grid>
@@ -93,4 +98,7 @@ function Login() {
   );
 }
 
+Login.propTypes = {
+  role: PropTypes.string,
+};
 export default Login;

@@ -15,6 +15,9 @@ function RouterComponent() {
       <Route path="/" element={<LandingPage />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/tutor/login" element={<Login role="admin" />} />
+      <Route path="/tutor" element={<LandingPage role="admin" />} />
+      <Route path="/tutor/signup" element={<Signup role="admin" />} />
       <Route
         path="/courses"
         element={

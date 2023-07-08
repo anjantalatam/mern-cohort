@@ -8,16 +8,16 @@ import {
 import OndemandVideoIcon from '@mui/icons-material/OndemandVideo';
 
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts';
+import { useAuth, useGetRole } from '../contexts';
 
 function Navbar() {
   const navigate = useNavigate();
 
+  const { isTutor } = useGetRole();
+
   const { isAuthenticated, logout } = useAuth();
 
-  console.log(isAuthenticated, 'isUA');
-
-  const navItems = [
+  const userNavItems = [
     {
       key: 'login',
       label: 'Login',
@@ -29,6 +29,15 @@ function Navbar() {
       label: 'Sign Up',
       route: '/signup',
       isEnabled: !isAuthenticated,
+    },
+    {
+      key: 'joinAsTutor',
+      label: 'Join as Tutor',
+      route: '/tutor',
+      isEnabled: !isAuthenticated,
+      btnProps: {
+        variant: 'contained',
+      },
     },
     {
       key: 'courses',
@@ -44,6 +53,45 @@ function Navbar() {
       isEnabled: isAuthenticated,
     },
   ];
+
+  const tutorNavItems = [
+    {
+      key: 'login',
+      label: 'Login',
+      route: '/tutor/login',
+      isEnabled: !isAuthenticated,
+    },
+    {
+      key: 'signup',
+      label: 'Sign Up',
+      route: '/tutor/signup',
+      isEnabled: !isAuthenticated,
+    },
+    {
+      key: 'joinAsUser',
+      label: 'Join as User',
+      route: '/',
+      isEnabled: !isAuthenticated,
+      btnProps: {
+        variant: 'contained',
+      },
+    },
+    {
+      key: 'courses',
+      label: 'Courses',
+      route: '/tutor/courses',
+      isEnabled: isAuthenticated,
+    },
+    {
+      key: 'logout',
+      label: 'Logout',
+      route: '/',
+      onClick: logout,
+      isEnabled: isAuthenticated,
+    },
+  ];
+
+  let navItems = isTutor ? tutorNavItems : userNavItems;
 
   return (
     <AppBar color="default" position="static">
@@ -63,7 +111,8 @@ function Navbar() {
               <Button
                 key={item.key}
                 variant="text"
-                onClick={item?.onClick ?? (() => navigate(item.route))}>
+                onClick={item?.onClick ?? (() => navigate(item.route))}
+                {...item?.btnProps}>
                 {item.label}
               </Button>
             ))}

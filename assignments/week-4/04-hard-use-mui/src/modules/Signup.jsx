@@ -16,17 +16,27 @@ import { customAxios } from '../axios';
 import { useSnackbar } from '../contexts/snackbarProvider';
 import { useAuth } from '../contexts';
 
-function Signup() {
+import PropTypes from 'prop-types';
+
+function Signup({ role }) {
   const navigate = useNavigate();
   const { openSnackbar } = useSnackbar();
   const { createToken } = useAuth();
+
+  const isTutor = role === 'admin';
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
 
     try {
-      const res = await customAxios.post(`${API_END_POINTS.dev}/admin/signup`, {
+      let url = `${API_END_POINTS.dev}/user/signup`;
+
+      if (isTutor) {
+        url = `${API_END_POINTS.dev}/admin/signup`;
+      }
+
+      const res = await customAxios.post(url, {
         username: data.get('email'),
         password: data.get('password'),
       });
@@ -51,7 +61,7 @@ function Signup() {
           <LockOutlinedIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
-          Sign up
+          {isTutor ? 'Tutor Sign up' : 'Sign up'}
         </Typography>
         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
           <TextField
@@ -77,7 +87,9 @@ function Signup() {
           <Grid container>
             <Grid item xs></Grid>
             <Grid item>
-              <Link onClick={() => navigate('/login')} variant="body2">
+              <Link
+                onClick={() => navigate(isTutor ? '/tutor/login' : '/login')}
+                variant="body2">
                 {'Already have an account? Login'}
               </Link>
             </Grid>
@@ -87,5 +99,7 @@ function Signup() {
     </Container>
   );
 }
+
+Signup.propTypes = { role: PropTypes.string };
 
 export default Signup;
