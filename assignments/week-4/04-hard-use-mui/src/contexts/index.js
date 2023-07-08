@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 import { AuthContext } from './authProvider';
 import { RoleContext } from './roleProvider';
+import { SnackbarContext } from './snackbarProvider';
 
 function useAuth() {
   const authContext = useContext(AuthContext);
@@ -13,4 +14,10 @@ function useGetRole() {
   return roleContext;
 }
 
-export { useAuth, useGetRole };
+function useSnackbar() {
+  const context = useContext(SnackbarContext);
+
+  return context;
+}
+
+export { useAuth, useGetRole, useSnackbar };

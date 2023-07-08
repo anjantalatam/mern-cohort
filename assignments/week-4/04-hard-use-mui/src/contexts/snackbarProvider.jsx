@@ -1,5 +1,5 @@
 import { Snackbar } from '@mui/material';
-import { createContext, useContext, useState } from 'react';
+import { createContext, useCallback, useState } from 'react';
 
 export const SnackbarContext = createContext({});
 
@@ -7,15 +7,15 @@ function SnackbarProvider({ children }) {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
 
-  const openSnackbar = (msg) => {
+  const openSnackbar = useCallback((msg) => {
     setOpen(true);
     setMessage(msg);
-  };
+  }, []);
 
-  const onClose = () => {
+  const onClose = useCallback(() => {
     setOpen(false);
     setMessage('');
-  };
+  }, []);
 
   return (
     <SnackbarContext.Provider
@@ -35,10 +35,4 @@ function SnackbarProvider({ children }) {
   );
 }
 
-function useSnackbar() {
-  const context = useContext(SnackbarContext);
-
-  return context;
-}
-
-export { SnackbarProvider, useSnackbar };
+export default SnackbarProvider;
