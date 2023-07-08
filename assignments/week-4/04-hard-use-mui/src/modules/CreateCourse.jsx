@@ -10,12 +10,13 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import axios from 'axios';
 import { API_END_POINTS, FALL_BACK_ERROR_MESSAGE } from '../utility';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 import { useState } from 'react';
-import { useSnackbar } from '../contexts/snackbarProvider';
+import { useSnackbar } from '../contexts';
+
 import { useLocation, useNavigate } from 'react-router-dom';
+import { customAxios } from '../axios';
 
 function CreateCourse({ mode }) {
   const { state } = useLocation();
@@ -74,7 +75,7 @@ function CreateCourse({ mode }) {
     }
 
     try {
-      const res = await axios({
+      const res = await customAxios({
         method: isEditMode ? 'put' : 'post',
         url: url,
         data: reqBody,
@@ -85,9 +86,8 @@ function CreateCourse({ mode }) {
 
       if (res) {
         openSnackbar(res.data.message);
-        navigate('/courses');
+        navigate('/tutor/courses');
       }
-      console.log(res, 'res');
     } catch (e) {
       openSnackbar(e?.response?.data?.message ?? FALL_BACK_ERROR_MESSAGE);
     }

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { API_END_POINTS } from '../utility';
-import { useSnackbar } from '../contexts/snackbarProvider';
 import {
   Box,
   Button,
@@ -16,6 +15,8 @@ import {
 import { useNavigate } from 'react-router-dom';
 
 import { customAxios } from '../axios';
+import PropTypes from 'prop-types';
+import { useAuth, useSnackbar } from '../contexts';
 
 function Courses() {
   const [loading, setLoading] = useState(false);
@@ -23,20 +24,26 @@ function Courses() {
   const { openSnackbar } = useSnackbar();
   const navigate = useNavigate();
 
+  const { currentRole } = useAuth();
+
+  const isTutor = currentRole === 'admin';
+
   useEffect(() => {
     const token = localStorage.getItem('token');
 
     const getCourses = async () => {
+      let url = `${API_END_POINTS.dev}/users/courses`;
+
+      if (isTutor) {
+        url = `${API_END_POINTS.dev}/admin/courses`;
+      }
       try {
         setLoading(true);
-        const res = await customAxios.get(
-          `${API_END_POINTS.dev}/admin/courses`,
-          {
-            headers: {
-              Authorization: token,
-            },
-          }
-        );
+        const res = await customAxios.get(url, {
+          headers: {
+            Authorization: token,
+          },
+        });
 
         setCourses(res.data.courses ?? []);
       } catch (e) {
@@ -53,7 +60,7 @@ function Courses() {
     };
 
     getCourses();
-  }, [navigate, openSnackbar]);
+  }, [isTutor, navigate, openSnackbar]);
 
   return (
     <Box
@@ -64,9 +71,15 @@ function Courses() {
         alignItems: 'center',
       }}>
       {loading && <>Loading...</>}
-      <Button variant="contained" onClick={() => navigate('/courses/create')}>
-        Create a Course
-      </Button>
+      {isTutor && (
+        <Button
+          variant="contained"
+          onClick={() => navigate('/tutor/courses/create')}>
+          Create a Course
+        </Button>
+      )}
+
+      {!loading && courses.length == 0 && 'No Courses'}
 
       {!loading && (
         <Container sx={{ py: 8 }} maxWidth="md">
@@ -114,20 +127,34 @@ function Courses() {
                     <Divider />
                     <CardActions
                       sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                      <Button
-                        size="small"
-                        onClick={() =>
-                          navigate(`/courses/${course.id}`, { state: course })
-                        }>
-                        View
-                      </Button>
-                      <Button
-                        size="small"
-                        onClick={() =>
-                          navigate('/courses/edit', { state: course })
-                        }>
-                        Edit
-                      </Button>
+                      {isTutor ? (
+                        <>
+                          <Button
+                            size="small"
+                            onClick={() =>
+                              navigate(`/tutor/courses/${course.id}`, {
+                                state: course,
+                              })
+                            }>
+                            View
+                          </Button>
+                          <Button
+                            size="small"
+                            onClick={() =>
+                              navigate('/tutor/courses/edit', { state: course })
+                            }>
+                            Edit
+                          </Button>
+                        </>
+                      ) : (
+                        <Button
+                          size="small"
+                          onClick={() =>
+                            navigate(`/courses/${course.id}`, { state: course })
+                          }>
+                          Purchase
+                        </Button>
+                      )}
                     </CardActions>
                   </Card>
                 </Grid>
@@ -139,5 +166,7 @@ function Courses() {
     </Box>
   );
 }
+
+Courses.propTypes = { role: PropTypes.string };
 
 export default Courses;
