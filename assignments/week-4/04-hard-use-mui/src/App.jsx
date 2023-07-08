@@ -4,20 +4,27 @@ import Navbar from './components/Navbar';
 import { BrowserRouter } from 'react-router-dom';
 import RouterComponent from './components/RouterComponent';
 import { SnackbarProvider } from './contexts/snackbarProvider';
+import AuthProvider from './contexts/authProvider';
 
-const defaultTheme = createTheme();
+const darkTheme = createTheme({
+  palette: {
+    mode: 'dark',
+  },
+});
 
 function App() {
   return (
-    <ThemeProvider theme={defaultTheme}>
-      <CssBaseline />
-      <SnackbarProvider>
-        <BrowserRouter>
-          <Navbar />
-          <RouterComponent />
-        </BrowserRouter>
-      </SnackbarProvider>
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider theme={darkTheme}>
+        <CssBaseline />
+        <SnackbarProvider>
+          <BrowserRouter>
+            <Navbar />
+            <RouterComponent />
+          </BrowserRouter>
+        </SnackbarProvider>
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
 

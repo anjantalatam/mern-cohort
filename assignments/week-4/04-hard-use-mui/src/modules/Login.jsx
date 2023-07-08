@@ -9,20 +9,22 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { useNavigate } from 'react-router-dom';
 import Password from '../components/Password';
-import axios from 'axios';
 import { API_END_POINTS } from '../utility';
 import { useSnackbar } from '../contexts/snackbarProvider';
+import { customAxios } from '../axios';
+import { useAuth } from '../contexts';
 
 function Login() {
   const navigate = useNavigate();
   const { openSnackbar } = useSnackbar();
+  const { createToken } = useAuth();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
 
     try {
-      const res = await axios.post(
+      const res = await customAxios.post(
         `${API_END_POINTS.dev}/admin/login`,
         {},
         {
@@ -34,7 +36,7 @@ function Login() {
       );
 
       openSnackbar(res.data.message);
-      localStorage.setItem('token', res.data.token);
+      createToken(res.data.token);
       navigate('/courses');
     } catch (e) {
       openSnackbar(e.response.data.message);

@@ -1,3 +1,5 @@
+// these are yet to be published
+
 // allow users to purchase only published courses
 
 //  get courses in users should return only published courses

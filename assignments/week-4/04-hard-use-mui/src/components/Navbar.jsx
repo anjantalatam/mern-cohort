@@ -8,9 +8,42 @@ import {
 import OndemandVideoIcon from '@mui/icons-material/OndemandVideo';
 
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts';
 
 function Navbar() {
   const navigate = useNavigate();
+
+  const { isAuthenticated, logout } = useAuth();
+
+  console.log(isAuthenticated, 'isUA');
+
+  const navItems = [
+    {
+      key: 'login',
+      label: 'Login',
+      route: '/login',
+      isEnabled: !isAuthenticated,
+    },
+    {
+      key: 'signup',
+      label: 'Sign Up',
+      route: '/signup',
+      isEnabled: !isAuthenticated,
+    },
+    {
+      key: 'courses',
+      label: 'Courses',
+      route: '/courses',
+      isEnabled: isAuthenticated,
+    },
+    {
+      key: 'logout',
+      label: 'Logout',
+      route: '/',
+      onClick: logout,
+      isEnabled: isAuthenticated,
+    },
+  ];
 
   return (
     <AppBar color="default" position="static">
@@ -24,13 +57,16 @@ function Navbar() {
         </Typography>
 
         <nav>
-          <Button variant="text" onClick={() => navigate('/login')}>
-            Login
-          </Button>
-
-          <Button variant="text" onClick={() => navigate('/signup')}>
-            Sign Up
-          </Button>
+          {navItems
+            .filter((item) => item.isEnabled)
+            .map((item) => (
+              <Button
+                key={item.key}
+                variant="text"
+                onClick={item?.onClick ?? (() => navigate(item.route))}>
+                {item.label}
+              </Button>
+            ))}
         </nav>
       </Toolbar>
     </AppBar>
