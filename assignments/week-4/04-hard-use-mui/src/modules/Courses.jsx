@@ -141,38 +141,46 @@ function Courses({ type }) {
                         Price: {course.price}
                       </Typography>
                     </CardContent>
-                    <Divider />
-                    <CardActions
-                      sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                      {isTutor ? (
-                        <>
-                          <Button
-                            size="small"
-                            onClick={() =>
-                              navigate(`/tutor/courses/${course.id}`, {
-                                state: course,
-                              })
-                            }>
-                            View
-                          </Button>
-                          <Button
-                            size="small"
-                            onClick={() =>
-                              navigate('/tutor/courses/edit', { state: course })
-                            }>
-                            Edit
-                          </Button>
-                        </>
-                      ) : (
-                        <Button
-                          size="small"
-                          onClick={() =>
-                            navigate(`/courses/${course.id}`, { state: course })
-                          }>
-                          Purchase
-                        </Button>
-                      )}
-                    </CardActions>
+                    {!isTypePurchasedCourses && (
+                      <>
+                        <Divider />
+                        <CardActions
+                          sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                          {isTutor ? (
+                            <>
+                              <Button
+                                size="small"
+                                onClick={() =>
+                                  navigate(`/tutor/courses/${course.id}`, {
+                                    state: course,
+                                  })
+                                }>
+                                View
+                              </Button>
+                              <Button
+                                size="small"
+                                onClick={() =>
+                                  navigate('/tutor/courses/edit', {
+                                    state: course,
+                                  })
+                                }>
+                                Edit
+                              </Button>
+                            </>
+                          ) : (
+                            <Button
+                              size="small"
+                              onClick={() =>
+                                navigate(`/courses/${course.id}`, {
+                                  state: course,
+                                })
+                              }>
+                              Purchase
+                            </Button>
+                          )}
+                        </CardActions>
+                      </>
+                    )}
                   </Card>
                 </Grid>
               );
