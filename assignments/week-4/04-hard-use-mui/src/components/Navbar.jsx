@@ -15,15 +15,21 @@ function Navbar() {
 
   const { isTutor: isTutorByRoute } = useGetRole();
 
-  const { isAuthenticated, logout, currentRole } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
 
-  console.log(currentRole);
-
-  const common = [
+  const common = (customNavs) => [
     {
       key: 'courses',
       label: 'Courses',
       route: '/courses',
+      isEnabled: isAuthenticated,
+    },
+    ...customNavs,
+    {
+      key: 'logout',
+      label: 'Logout',
+      route: '/',
+      onClick: logout,
       isEnabled: isAuthenticated,
     },
   ];
@@ -57,13 +63,6 @@ function Navbar() {
       route: '/my-courses',
       isEnabled: isAuthenticated,
     },
-    {
-      key: 'logout',
-      label: 'Logout',
-      route: '/',
-      onClick: logout,
-      isEnabled: isAuthenticated,
-    },
   ];
 
   const tutorNavItems = [
@@ -88,18 +87,11 @@ function Navbar() {
         variant: 'contained',
       },
     },
-    {
-      key: 'logout',
-      label: 'Logout',
-      route: '/tutor',
-      onClick: logout,
-      isEnabled: isAuthenticated,
-    },
   ];
 
   const navItemsByRole = isTutorByRoute ? tutorNavItems : userNavItems;
 
-  const navItems = [...common, ...navItemsByRole];
+  const navItems = common(navItemsByRole);
 
   return (
     <AppBar color="default" position="static">
@@ -107,8 +99,18 @@ function Navbar() {
         styles={{ ul: { margin: 0, padding: 0, listStyle: 'none' } }}
       />
       <Toolbar sx={{ flexWrap: 'wrap' }}>
-        <OndemandVideoIcon sx={{ mr: 1 }} />
-        <Typography variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}>
+        <Typography
+          variant="h6"
+          color="inherit"
+          noWrap
+          onClick={() => navigate('/')}
+          sx={{
+            flexGrow: 1,
+            display: 'flex',
+            alignItems: 'center',
+            cursor: 'pointer',
+          }}>
+          <OndemandVideoIcon sx={{ mr: 1 }} />
           Course Hub
         </Typography>
 

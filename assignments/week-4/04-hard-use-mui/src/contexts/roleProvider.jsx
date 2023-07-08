@@ -20,7 +20,6 @@ function RoleProvider({ children }) {
   const [isTutor, setIsTutor] = useState(false);
 
   useEffect(() => {
-    console.log(currentRole, 'inside role');
     if (currentRole) {
       if (currentRole === 'admin') {
         setIsTutor(true);

@@ -14,11 +14,10 @@ function AuthProvider({ children }) {
     setIsAuthenticated(false);
 
     localStorage.removeItem('role');
-    setIsAuthenticated(null);
+    setCurrentRole(null);
   };
 
   const createToken = (token, role) => {
-    console.log(token, role, 'from create token');
     if (token) {
       localStorage.setItem('token', token);
       localStorage.setItem('role', role);

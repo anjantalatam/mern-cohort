@@ -44,7 +44,9 @@ function Course() {
       }
     };
 
-    purchase();
+    if (course?.id) {
+      purchase();
+    }
   }
 
   return (
@@ -63,8 +65,8 @@ function Course() {
         {
           <img
             style={{ display: 'none' }}
-            src={course.image}
-            alt={course.imageText}
+            src={course?.imageLink}
+            alt={course?.imageText}
           />
         }
         <Box
@@ -85,14 +87,14 @@ function Course() {
         }}>
         <Container component="main" sx={{ mt: 6, mb: 2 }} maxWidth="sm">
           <Typography variant="h3" component="h1" gutterBottom>
-            {course.title}
+            {course?.title}
           </Typography>
           <Divider sx={{ mb: 3 }} />
           <Typography variant="h5" component="h2" gutterBottom>
-            {course.description}
+            {course?.description}
           </Typography>
           <Typography variant="h4" sx={{ mt: 3 }}>
-            Price: {course.price}
+            Price: {course?.price}
           </Typography>
           {isTutor ? (
             <Button

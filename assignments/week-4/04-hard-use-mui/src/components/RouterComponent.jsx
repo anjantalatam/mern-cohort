@@ -8,21 +8,21 @@ import NotFound from './NotFound';
 import ProtectedRoute from './ProtectedRoute';
 import AuthRoutes from './AuthRoutes';
 import LandingPage from '../modules/LandingPage';
-import { useAuth } from '../contexts';
+import BaseRoute from './BaseRoute';
 
 function RouterComponent() {
-  const { currentRole } = useAuth();
-
-  const isTutor = currentRole === 'admin';
-  const isUser = currentRole === 'user';
-
-  console.log(currentRole, isTutor, 'currentRole');
-
   return (
     <Routes>
       {/* user routes */}
       <Route path="/" element={<Outlet />}>
-        <Route index element={<LandingPage role="user" />} />
+        <Route
+          index
+          element={
+            <BaseRoute>
+              <LandingPage role="user" />
+            </BaseRoute>
+          }
+        />
 
         <Route
           path="signup"
@@ -41,12 +41,62 @@ function RouterComponent() {
           }
         />
 
+        {/* Tutor Login and Sign Up Routes and root routes */}
+
+        <Route path="/tutor" element={<Outlet />}>
+          <Route
+            index
+            element={
+              <BaseRoute type="tutor">
+                <LandingPage role="admin" />
+              </BaseRoute>
+            }
+          />
+
+          <Route
+            path="signup"
+            element={
+              <AuthRoutes redirectRoute="/tutor">
+                <Signup role="admin" />
+              </AuthRoutes>
+            }
+          />
+          <Route
+            path="login"
+            element={
+              <AuthRoutes redirectRoute="/tutor">
+                <Login role="admin" />
+              </AuthRoutes>
+            }
+          />
+        </Route>
+
         <Route path="courses" element={<Outlet />}>
           <Route
             index
             element={
               <ProtectedRoute>
                 <Courses />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* admin routes */}
+          <Route
+            path="create"
+            exact
+            element={
+              <ProtectedRoute type="adminRoute" redirectRoute="/tutor">
+                <CreateCourse mode="create" />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="edit"
+            exact
+            element={
+              <ProtectedRoute type="adminRoute" redirectRoute="/tutor">
+                <CreateCourse mode="edit" />
               </ProtectedRoute>
             }
           />
@@ -60,60 +110,15 @@ function RouterComponent() {
           />
         </Route>
 
-        {isUser && (
-          <Route
-            path="my-courses"
-            element={
-              <ProtectedRoute>
-                <Courses type={'purchased-courses'} />
-              </ProtectedRoute>
-            }
-          />
-        )}
-      </Route>
-
-      <Route path="/tutor" element={<Outlet />}>
-        <Route index element={<LandingPage role="admin" />} />
-
         <Route
-          path="signup"
+          path="my-courses"
           element={
-            <AuthRoutes redirectRoute="/tutor">
-              <Signup role="admin" />
-            </AuthRoutes>
-          }
-        />
-        <Route
-          path="login"
-          element={
-            <AuthRoutes redirectRoute="/tutor">
-              <Login role="admin" />
-            </AuthRoutes>
+            <ProtectedRoute type="userRoute" redirectRoute="/">
+              <Courses type={'purchased-courses'} />
+            </ProtectedRoute>
           }
         />
       </Route>
-
-      {/* admin routes */}
-      {isTutor && (
-        <Route path="courses" element={<Outlet />}>
-          <Route
-            path="create"
-            element={
-              <ProtectedRoute redirectRoute="/tutor">
-                <CreateCourse mode="create" />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="edit"
-            element={
-              <ProtectedRoute redirectRoute="/tutor">
-                <CreateCourse mode="edit" />
-              </ProtectedRoute>
-            }
-          />
-        </Route>
-      )}
 
       <Route path="*" element={<NotFound />} />
     </Routes>
