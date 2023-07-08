@@ -89,7 +89,7 @@ function Courses({ type }) {
           {isTutor && (
             <Button
               variant="contained"
-              onClick={() => navigate('/tutor/courses/create')}>
+              onClick={() => navigate('/courses/create')}>
               Create a Course
             </Button>
           )}
@@ -151,7 +151,7 @@ function Courses({ type }) {
                               <Button
                                 size="small"
                                 onClick={() =>
-                                  navigate(`/tutor/courses/${course.id}`, {
+                                  navigate(`/courses/${course.id}`, {
                                     state: course,
                                   })
                                 }>
@@ -160,7 +160,7 @@ function Courses({ type }) {
                               <Button
                                 size="small"
                                 onClick={() =>
-                                  navigate('/tutor/courses/edit', {
+                                  navigate('/courses/edit', {
                                     state: course,
                                   })
                                 }>

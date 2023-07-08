@@ -99,9 +99,7 @@ function Course() {
               fullWidth
               variant="contained"
               sx={{ mt: 5 }}
-              onClick={() =>
-                navigate('/tutor/courses/edit', { state: course })
-              }>
+              onClick={() => navigate('/courses/edit', { state: course })}>
               Edit Course
             </Button>
           ) : (

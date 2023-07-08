@@ -86,7 +86,7 @@ function CreateCourse({ mode }) {
 
       if (res) {
         openSnackbar(res.data.message);
-        navigate('/tutor/courses');
+        navigate('/courses');
       }
     } catch (e) {
       openSnackbar(e?.response?.data?.message ?? FALL_BACK_ERROR_MESSAGE);

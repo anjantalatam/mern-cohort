@@ -42,7 +42,7 @@ function Signup({ role }) {
       });
       openSnackbar(res.data.message);
       createToken(res.data.token, res.data.role);
-      navigate(isTutor ? '/tutor/courses' : '/courses');
+      navigate('/courses');
     } catch (e) {
       openSnackbar(e.response.data.message);
     }

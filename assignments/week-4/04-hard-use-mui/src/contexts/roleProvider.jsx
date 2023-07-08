@@ -1,6 +1,7 @@
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
 import { createContext, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useAuth } from '.';
 
 export const RoleContext = createContext({});
 
@@ -14,18 +15,24 @@ const defaultTheme = createTheme();
 
 function RoleProvider({ children }) {
   const location = useLocation();
+  const { currentRole } = useAuth();
 
-  const [isTutor, setIsTutor] = useState(
-    location.pathname.startsWith('/tutor')
-  );
+  const [isTutor, setIsTutor] = useState(false);
 
   useEffect(() => {
-    if (location.pathname.startsWith('/tutor')) {
+    console.log(currentRole, 'inside role');
+    if (currentRole) {
+      if (currentRole === 'admin') {
+        setIsTutor(true);
+      } else {
+        setIsTutor(false);
+      }
+    } else if (location.pathname.startsWith('/tutor')) {
       setIsTutor(true);
     } else {
       setIsTutor(false);
     }
-  }, [location.pathname]);
+  }, [currentRole, location.pathname]);
 
   return (
     <RoleContext.Provider value={{ isTutor }}>

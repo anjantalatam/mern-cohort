@@ -13,9 +13,20 @@ import { useAuth, useGetRole } from '../contexts';
 function Navbar() {
   const navigate = useNavigate();
 
-  const { isTutor } = useGetRole();
+  const { isTutor: isTutorByRoute } = useGetRole();
 
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, currentRole } = useAuth();
+
+  console.log(currentRole);
+
+  const common = [
+    {
+      key: 'courses',
+      label: 'Courses',
+      route: '/courses',
+      isEnabled: isAuthenticated,
+    },
+  ];
 
   const userNavItems = [
     {
@@ -39,12 +50,7 @@ function Navbar() {
         variant: 'contained',
       },
     },
-    {
-      key: 'courses',
-      label: 'Courses',
-      route: '/courses',
-      isEnabled: isAuthenticated,
-    },
+
     {
       key: 'myCourses',
       label: 'My Courses',
@@ -83,12 +89,6 @@ function Navbar() {
       },
     },
     {
-      key: 'courses',
-      label: 'Courses',
-      route: '/tutor/courses',
-      isEnabled: isAuthenticated,
-    },
-    {
       key: 'logout',
       label: 'Logout',
       route: '/tutor',
@@ -97,7 +97,9 @@ function Navbar() {
     },
   ];
 
-  let navItems = isTutor ? tutorNavItems : userNavItems;
+  const navItemsByRole = isTutorByRoute ? tutorNavItems : userNavItems;
+
+  const navItems = [...common, ...navItemsByRole];
 
   return (
     <AppBar color="default" position="static">
