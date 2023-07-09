@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "VITE_ENV=dev vite",
-    "build": "VITE_ENV=prod build",
+    "build": "VITE_ENV=prod vite build",
     "lint": "eslint src --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
