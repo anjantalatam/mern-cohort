@@ -94,7 +94,7 @@ function Navbar() {
   const navItems = common(navItemsByRole);
 
   return (
-    <AppBar color="default" position="static">
+    <AppBar color="default" position="sticky">
       <GlobalStyles
         styles={{ ul: { margin: 0, padding: 0, listStyle: 'none' } }}
       />

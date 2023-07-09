@@ -1,9 +1,8 @@
-import Navbar from './components/Navbar';
 import { BrowserRouter } from 'react-router-dom';
-import RouterComponent from './components/RouterComponent';
 import SnackbarProvider from './contexts/snackbarProvider';
 import AuthProvider from './contexts/authProvider';
 import RoleProvider from './contexts/roleProvider';
+import Main from './modules/Main';
 
 function App() {
   return (
@@ -11,8 +10,7 @@ function App() {
       <AuthProvider>
         <RoleProvider>
           <SnackbarProvider>
-            <Navbar />
-            <RouterComponent />
+            <Main />
           </SnackbarProvider>
         </RoleProvider>
       </AuthProvider>

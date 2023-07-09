@@ -97,7 +97,16 @@ function Courses({ type }) {
 
         {loading && <>Loading...</>}
 
-        {!loading && courses.length == 0 && 'No Courses'}
+        {!loading &&
+          courses.length === 0 &&
+          !isTypePurchasedCourses &&
+          'No Courses'}
+
+        {!loading && courses.length == 0 && isTypePurchasedCourses && (
+          <Button variant="contained" onClick={() => navigate('/courses')}>
+            Buy a Course
+          </Button>
+        )}
 
         {!loading && (
           <Grid container spacing={4}>

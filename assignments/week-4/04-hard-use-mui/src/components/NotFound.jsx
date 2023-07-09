@@ -11,8 +11,7 @@ function NotFound() {
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        height: '90vh',
-
+        height: '100%',
         gap: '2rem',
       }}>
       <Typography variant="h3"> Page Not Found</Typography>
