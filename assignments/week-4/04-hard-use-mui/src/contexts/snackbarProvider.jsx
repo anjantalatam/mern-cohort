@@ -1,15 +1,27 @@
-import { Snackbar } from '@mui/material';
-import { createContext, useCallback, useState } from 'react';
+import { Alert, Snackbar } from '@mui/material';
+import { createContext, useCallback, useMemo, useState } from 'react';
 
 export const SnackbarContext = createContext({});
 
 function SnackbarProvider({ children }) {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
+  const [severity, setSeverity] = useState('info');
 
-  const openSnackbar = useCallback((msg) => {
-    setOpen(true);
-    setMessage(msg);
+  const openSnackbar = useMemo(() => {
+    const success = (msg) => {
+      setOpen(true);
+      setMessage(msg);
+      setSeverity('success');
+    };
+
+    const error = (msg) => {
+      setOpen(true);
+      setMessage(msg);
+      setSeverity('error');
+    };
+
+    return { success, error };
   }, []);
 
   const onClose = useCallback(() => {
@@ -25,12 +37,11 @@ function SnackbarProvider({ children }) {
       {children}
       <Snackbar
         open={open}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         onClose={onClose}
-        message={message}
         key={'top-right-snackbar'}
-        autoHideDuration={4000}
-      />
+        autoHideDuration={3000}>
+        <Alert severity={severity}>{message}</Alert>
+      </Snackbar>
     </SnackbarContext.Provider>
   );
 }

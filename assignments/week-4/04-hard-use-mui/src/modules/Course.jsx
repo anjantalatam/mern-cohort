@@ -48,10 +48,10 @@ function Course() {
           }
         );
 
-        openSnackbar(res.data.message);
+        openSnackbar.success(res.data.message);
         navigate('/my-courses');
       } catch (e) {
-        openSnackbar(e.response.data.message);
+        openSnackbar.error(e.response.data.message);
       }
     };
 

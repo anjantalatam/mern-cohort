@@ -85,11 +85,11 @@ function CreateCourse({ mode }) {
       });
 
       if (res) {
-        openSnackbar(res.data.message);
+        openSnackbar.success(res.data.message);
         navigate('/courses');
       }
     } catch (e) {
-      openSnackbar(e?.response?.data?.message ?? FALL_BACK_ERROR_MESSAGE);
+      openSnackbar.error(e?.response?.data?.message ?? FALL_BACK_ERROR_MESSAGE);
     }
   };
 
@@ -106,7 +106,7 @@ function CreateCourse({ mode }) {
           <CreateNewFolderIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
-          Create Course
+          {isEditMode ? 'Edit Course' : 'Create Course'}
         </Typography>
 
         <Box
@@ -135,6 +135,8 @@ function CreateCourse({ mode }) {
             label="Description"
             autoComplete="description"
             type="text"
+            multiline
+            rows={4}
           />
 
           <TextField
@@ -179,14 +181,39 @@ function CreateCourse({ mode }) {
             </FormControl>
           )}
 
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
-            disabled={Object.values(error).some((value) => !!value)}>
-            {isEditMode ? 'Save Changes' : 'Create'}
-          </Button>
+          {!isEditMode && (
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+              disabled={Object.values(error).some((value) => !!value)}>
+              Create
+            </Button>
+          )}
+
+          {isEditMode && (
+            <Box display="flex" gap="1rem" alignItems="center">
+              <Button
+                fullWidth
+                variant="outlined"
+                size="large"
+                sx={{ mt: 3, mb: 2 }}
+                onClick={() => navigate(-1)}
+                disabled={Object.values(error).some((value) => !!value)}>
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                size="large"
+                sx={{ mt: 3, mb: 2 }}
+                disabled={Object.values(error).some((value) => !!value)}>
+                Save Changes
+              </Button>
+            </Box>
+          )}
         </Box>
       </Box>
     </Container>

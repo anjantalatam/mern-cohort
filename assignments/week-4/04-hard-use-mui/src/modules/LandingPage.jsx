@@ -87,7 +87,7 @@ function LandingPage({ role }) {
               sx={{ mt: 3 }}
               onClick={() => navigate(isTutor ? '/courses' : '/my-courses')}
               variant="contained">
-              Go to Courses
+              {isTutor ? 'Go to Courses' : 'Go to My Courses'}
             </Button>
           )}
         </Paper>

@@ -42,11 +42,11 @@ function Login({ role }) {
         }
       );
 
-      openSnackbar(res.data.message);
+      openSnackbar.success(res.data.message);
       createToken(res.data.token, res.data.role);
       navigate('/courses');
     } catch (e) {
-      openSnackbar(e.response.data.message);
+      openSnackbar.error(e.response.data.message);
     }
   };
 

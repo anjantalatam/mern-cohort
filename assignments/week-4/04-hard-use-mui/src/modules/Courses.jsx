@@ -52,7 +52,7 @@ function Courses({ type }) {
 
         setCourses(res.data.courses ?? []);
       } catch (e) {
-        openSnackbar(e.response.data.message);
+        openSnackbar.error(e.response.data.message);
         if (
           e.response.data.code === 'token_expired' ||
           e.response.data.code === 'token_missing'
@@ -69,7 +69,7 @@ function Courses({ type }) {
 
   return (
     <Box
-      sx={{ py: 8 }}
+      sx={{ pt: 5, pb: 8 }}
       style={{
         display: 'flex',
         flexDirection: 'column',
