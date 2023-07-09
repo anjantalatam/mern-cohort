@@ -6,7 +6,12 @@ import {
   Paper,
   Typography,
 } from '@mui/material';
-import { useLocation, useNavigate } from 'react-router-dom';
+import {
+  Navigate,
+  useLocation,
+  useNavigate,
+  useParams,
+} from 'react-router-dom';
 import { useAuth, useSnackbar } from '../contexts';
 import { API_END_POINTS } from '../utility';
 import { customAxios } from '../axios';
@@ -14,12 +19,18 @@ import { customAxios } from '../axios';
 function Course() {
   const { state: course } = useLocation();
   const { openSnackbar } = useSnackbar();
+  const { courseId } = useParams();
 
   const { currentRole } = useAuth();
 
   const isTutor = currentRole === 'admin';
 
   const navigate = useNavigate();
+
+  if (courseId !== course?.id) {
+    // go back to previous route
+    return <Navigate to={navigate(-1)} />;
+  }
 
   function purchaseCourse() {
     const token = localStorage.getItem('token');

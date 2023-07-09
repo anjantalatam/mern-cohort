@@ -1,4 +1,4 @@
-import { Outlet, Route, Routes } from 'react-router-dom';
+import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import Login from '../modules/Login';
 import Signup from '../modules/Signup';
 import Courses from '../modules/Courses';
@@ -120,7 +120,9 @@ function RouterComponent() {
         />
       </Route>
 
-      <Route path="*" element={<NotFound />} />
+      <Route path="/not-found" element={<NotFound />} />
+
+      <Route path="*" element={<Navigate to="/not-found" replace />} />
     </Routes>
   );
 }
