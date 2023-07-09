@@ -9,8 +9,8 @@ function LandingPage({ role }) {
   const navigate = useNavigate();
 
   const image = isTutor
-    ? 'https://source.unsplash.com/BVr3XaBiWLU'
-    : 'https://source.unsplash.com/WE_Kv_ZB1l0';
+    ? 'https://images.pexels.com/photos/6325954/pexels-photo-6325954.jpeg'
+    : 'https://images.pexels.com/photos/6958516/pexels-photo-6958516.jpeg';
 
   return (
     <Paper
@@ -44,7 +44,7 @@ function LandingPage({ role }) {
           alignItems: 'center',
           justifyContent: 'center',
         }}>
-        <Box
+        <Paper
           sx={{
             background: 'white',
             opacity: '0.9',
@@ -90,7 +90,7 @@ function LandingPage({ role }) {
               Go to Courses
             </Button>
           )}
-        </Box>
+        </Paper>
       </Box>
     </Paper>
   );

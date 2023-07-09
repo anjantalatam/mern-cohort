@@ -31,6 +31,9 @@ function Navbar() {
       route: '/',
       onClick: logout,
       isEnabled: isAuthenticated,
+      btnProps: {
+        variant: 'contained',
+      },
     },
   ];
 
