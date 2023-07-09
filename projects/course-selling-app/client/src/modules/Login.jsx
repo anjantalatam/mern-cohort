@@ -26,10 +26,10 @@ function Login({ role }) {
     const data = new FormData(event.currentTarget);
 
     try {
-      let url = `${API_END_POINTS.dev}/users/login`;
+      let url = `/users/login`;
 
       if (isTutor) {
-        url = `${API_END_POINTS.dev}/admin/login`;
+        url = `/admin/login`;
       }
       const res = await customAxios.post(
         url,

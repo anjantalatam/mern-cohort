@@ -33,13 +33,13 @@ function Courses({ type }) {
     const token = localStorage.getItem('token');
 
     const getCourses = async () => {
-      let url = `${API_END_POINTS.dev}/users/courses`;
+      let url = `/users/courses`;
       if (isTypePurchasedCourses) {
-        url = `${API_END_POINTS.dev}/users/purchasedCourses`;
+        url = `/users/purchasedCourses`;
       }
 
       if (isTutor) {
-        url = `${API_END_POINTS.dev}/admin/courses`;
+        url = `/admin/courses`;
       }
 
       try {

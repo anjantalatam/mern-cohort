@@ -1,6 +1,12 @@
 import axios from 'axios';
+import { getApiEndpoint } from './utility';
 
-const customAxios = axios.create();
+const url = getApiEndpoint(import.meta.env.VITE_ENV);
+console.log({ 'import.meta.env.VITE_ENV': import.meta.env.VITE_ENV });
+
+const customAxios = axios.create({
+  baseURL: url,
+});
 
 const setAuthInterceptor = (logout) => {
   customAxios.interceptors.response.use(

@@ -68,7 +68,7 @@ function CreateCourse({ mode }) {
       published: isEditMode ? data.get('published') : true,
     };
 
-    let url = `${API_END_POINTS.dev}/admin/courses`;
+    let url = `/admin/courses`;
 
     if (isEditMode) {
       url = `${url}/${state.id}`;

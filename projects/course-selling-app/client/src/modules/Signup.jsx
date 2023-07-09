@@ -30,10 +30,10 @@ function Signup({ role }) {
     const data = new FormData(event.currentTarget);
 
     try {
-      let url = `${API_END_POINTS.dev}/users/signup`;
+      let url = `/users/signup`;
 
       if (isTutor) {
-        url = `${API_END_POINTS.dev}/admin/signup`;
+        url = `/admin/signup`;
       }
 
       const res = await customAxios.post(url, {

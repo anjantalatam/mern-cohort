@@ -35,7 +35,7 @@ function Course() {
   function purchaseCourse() {
     const token = localStorage.getItem('token');
     const purchase = async () => {
-      let url = `${API_END_POINTS.dev}/users/courses/${course.id}`;
+      let url = `/users/courses/${course.id}`;
 
       try {
         const res = await customAxios.post(
