@@ -61,7 +61,12 @@ function Course() {
   }
 
   return (
-    <>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+      }}>
       <Paper
         sx={{
           position: 'relative',
@@ -91,42 +96,46 @@ function Course() {
           }}
         />
       </Paper>
-      <Box
+
+      <Container
+        component="main"
         sx={{
+          mt: 6,
+          mb: 4,
           display: 'flex',
           flexDirection: 'column',
-        }}>
-        <Container component="main" sx={{ mt: 6, mb: 2 }} maxWidth="sm">
-          <Typography variant="h3" component="h1" gutterBottom>
-            {course?.title}
-          </Typography>
-          <Divider sx={{ mb: 3 }} />
-          <Typography variant="h5" component="h2" gutterBottom>
-            {course?.description}
-          </Typography>
-          <Typography variant="h4" sx={{ mt: 3 }}>
-            Price: {course?.price}
-          </Typography>
-          {isTutor ? (
-            <Button
-              fullWidth
-              variant="contained"
-              sx={{ mt: 5 }}
-              onClick={() => navigate('/courses/edit', { state: course })}>
-              Edit Course
-            </Button>
-          ) : (
-            <Button
-              fullWidth
-              variant="contained"
-              sx={{ mt: 5 }}
-              onClick={purchaseCourse}>
-              Purchase Course
-            </Button>
-          )}
-        </Container>
-      </Box>
-    </>
+          flex: 1,
+        }}
+        maxWidth="sm">
+        <Typography variant="h3" component="h1" gutterBottom>
+          {course?.title}
+        </Typography>
+        <Divider sx={{ mb: 3 }} />
+        <Typography variant="h5" component="h2" gutterBottom>
+          {course?.description}
+        </Typography>
+        <Typography variant="h4" sx={{ mt: 3 }}>
+          Price: {course?.price}
+        </Typography>
+        {isTutor ? (
+          <Button
+            fullWidth
+            variant="contained"
+            sx={{ mt: 'auto' }}
+            onClick={() => navigate('/courses/edit', { state: course })}>
+            Edit Course
+          </Button>
+        ) : (
+          <Button
+            fullWidth
+            variant="contained"
+            sx={{ mt: 'auto' }}
+            onClick={purchaseCourse}>
+            Purchase Course
+          </Button>
+        )}
+      </Container>
+    </div>
   );
 }
 
