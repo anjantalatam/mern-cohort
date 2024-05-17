@@ -6,7 +6,7 @@ class DateClass {
     this.timeZone = timeZone;
   }
 
-  @measure
+  //   @measure
   getMonth() {
     const date = new Date();
     console.log('hi');
